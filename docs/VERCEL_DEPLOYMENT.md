@@ -20,8 +20,7 @@
 
 | 变量 | 值 |
 |------|-----|
-| `DATABASE_URL` | Neon 的 **Pooled** 连接字符串 |
-| `DIRECT_URL` | Neon 的 **Direct** 连接字符串 |
+| `DATABASE_URL` | Neon 的 **Pooled** 连接字符串（或 Direct 亦可） |
 | `NEXTAUTH_SECRET` | 随机字符串（如 `openssl rand -base64 32`） |
 | `NEXTAUTH_URL` | `https://你的项目.vercel.app` |
 | `ADMIN_USERNAME` | `admin` |
@@ -48,12 +47,11 @@ npx prisma migrate deploy
 1. 访问 https://supabase.com 注册
 2. 创建新项目
 3. 进入 **Settings → Database**，复制连接字符串
-4. 使用 **Connection pooling** 的 URI 作为 `DATABASE_URL`
-5. 使用 **Direct connection** 的 URI 作为 `DIRECT_URL`
+4. 使用 **Connection pooling** 或 **Direct** 的 URI 作为 `DATABASE_URL`
 
 ### 2. 在 Vercel 配置
 
-同方式一，将 Supabase 的连接字符串填入 `DATABASE_URL` 和 `DIRECT_URL`。
+同方式一，将 Supabase 的连接字符串填入 `DATABASE_URL`。
 
 ### 3. 初始化数据库
 
@@ -68,9 +66,7 @@ npx prisma db push
 1. 在 Vercel 项目 → **Storage** → **Create Database**
 2. 选择 **Postgres**（由 Neon 提供）
 3. 创建后点击 **Connect**，会自动添加 `POSTGRES_URL` 等变量
-4. 若变量名为 `POSTGRES_URL`，在 Vercel 中添加：
-   - `DATABASE_URL` = `POSTGRES_URL` 的值
-   - `DIRECT_URL` = 同值或使用 Direct 连接串（在 Neon 控制台查看）
+4. 若变量名为 `POSTGRES_URL`，在 Vercel 中添加 `DATABASE_URL` = `POSTGRES_URL` 的值
 
 ---
 
@@ -78,7 +74,7 @@ npx prisma db push
 
 ### 使用 Neon/Supabase（与生产一致）
 
-在 `.env.local` 中配置相同的 `DATABASE_URL` 和 `DIRECT_URL`。
+在 `.env.local` 中配置相同的 `DATABASE_URL`。
 
 ### 使用本地 PostgreSQL
 
@@ -88,7 +84,6 @@ docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres:15
 
 # .env.local
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/zjuaa"
-DIRECT_URL="postgresql://postgres:postgres@localhost:5432/zjuaa"
 ```
 
 ```bash
@@ -104,7 +99,7 @@ npm run dev
 A: 检查 `DATABASE_URL`、`DIRECT_URL`、`NEXTAUTH_SECRET`、`NEXTAUTH_URL` 是否已正确配置。
 
 **Q: 如何初始化数据库？**  
-A: 在本地执行 `npx prisma db push`，需先配置好 `DATABASE_URL` 和 `DIRECT_URL`。
+A: Vercel 构建时会自动执行 `prisma db push`。本地执行 `npx prisma db push` 需先配置好 `DATABASE_URL`。
 
 **Q: 图片上传在 Vercel 上不持久？**  
 A: Vercel 文件系统为只读，需使用 Vercel Blob 或 Cloudinary 等云存储。

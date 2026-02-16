@@ -33,7 +33,6 @@ npm install
 # 方式B: 本地 PostgreSQL
 docker compose -f docker-compose.dev.yml up -d
 # .env.local: DATABASE_URL="postgresql://postgres:postgres@localhost:5432/zjuaa"
-#            DIRECT_URL="postgresql://postgres:postgres@localhost:5432/zjuaa"
 
 # 2. 复制环境变量
 cp .env.example .env.local
@@ -122,7 +121,7 @@ docker run -p 3000:3000 \
 
 详见 [docs/VERCEL_DEPLOYMENT.md](docs/VERCEL_DEPLOYMENT.md)。使用 **Neon** 或 **Supabase** 免费 PostgreSQL。
 
-必填环境变量：`DATABASE_URL`、`DIRECT_URL`、`NEXTAUTH_SECRET`、`NEXTAUTH_URL`、`ADMIN_USERNAME`、`ADMIN_PASSWORD`
+必填环境变量：`DATABASE_URL`（Neon 时用 postgresql://）、`NEXTAUTH_SECRET`、`NEXTAUTH_URL`、`ADMIN_USERNAME`、`ADMIN_PASSWORD`
 
 ## 配置说明
 
