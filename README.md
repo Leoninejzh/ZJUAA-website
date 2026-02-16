@@ -26,13 +26,23 @@
 # 安装依赖
 npm install
 
-# 复制环境变量并配置
-cp .env.example .env.local
+# 1. 配置数据库（二选一）
+# 方式A: 使用 Neon 免费版（推荐，无需本地安装）
+# 访问 https://neon.tech 创建数据库，复制连接串到 .env.local
 
-# 初始化数据库
+# 方式B: 本地 PostgreSQL
+docker compose -f docker-compose.dev.yml up -d
+# .env.local: DATABASE_URL="postgresql://postgres:postgres@localhost:5432/zjuaa"
+#            DIRECT_URL="postgresql://postgres:postgres@localhost:5432/zjuaa"
+
+# 2. 复制环境变量
+cp .env.example .env.local
+# 编辑 .env.local 填入 DATABASE_URL、DIRECT_URL、NEXTAUTH_*、ADMIN_*
+
+# 3. 初始化数据库
 npm run db:push
 
-# 开发模式
+# 4. 开发模式
 npm run dev
 
 # 构建
@@ -77,6 +87,10 @@ npm i -g vercel
 vercel
 ```
 
+### GoDaddy 部署
+
+详见 [docs/GODADDY_DEPLOYMENT.md](docs/GODADDY_DEPLOYMENT.md)。推荐：域名在 GoDaddy，应用托管在 Vercel。
+
 ### Docker 部署
 
 使用 Node.js 24 镜像，支持本地开发和生产部署。
@@ -104,15 +118,11 @@ docker run -p 3000:3000 \
 
 访问 http://localhost:3000/donation 和 http://localhost:3000/admin
 
-## Vercel 部署必填环境变量
+## Vercel 部署
 
-| 变量 | 说明 |
-|------|------|
-| `DATABASE_URL` | SQLite: `file:./prisma/dev.db`（Vercel 上 SQLite 受限，建议用 Vercel Postgres 或 Turso） |
-| `NEXTAUTH_SECRET` | 随机字符串，可用 `openssl rand -base64 32` 生成 |
-| `NEXTAUTH_URL` | 部署后的完整 URL，如 `https://xxx.vercel.app` |
-| `ADMIN_USERNAME` | 管理员用户名 |
-| `ADMIN_PASSWORD` | 管理员密码 |
+详见 [docs/VERCEL_DEPLOYMENT.md](docs/VERCEL_DEPLOYMENT.md)。使用 **Neon** 或 **Supabase** 免费 PostgreSQL。
+
+必填环境变量：`DATABASE_URL`、`DIRECT_URL`、`NEXTAUTH_SECRET`、`NEXTAUTH_URL`、`ADMIN_USERNAME`、`ADMIN_PASSWORD`
 
 ## 配置说明
 
