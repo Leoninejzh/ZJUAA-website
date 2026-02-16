@@ -104,6 +104,16 @@ docker run -p 3000:3000 \
 
 访问 http://localhost:3000/donation 和 http://localhost:3000/admin
 
+## Vercel 部署必填环境变量
+
+| 变量 | 说明 |
+|------|------|
+| `DATABASE_URL` | SQLite: `file:./prisma/dev.db`（Vercel 上 SQLite 受限，建议用 Vercel Postgres 或 Turso） |
+| `NEXTAUTH_SECRET` | 随机字符串，可用 `openssl rand -base64 32` 生成 |
+| `NEXTAUTH_URL` | 部署后的完整 URL，如 `https://xxx.vercel.app` |
+| `ADMIN_USERNAME` | 管理员用户名 |
+| `ADMIN_PASSWORD` | 管理员密码 |
+
 ## 配置说明
 
 - **网站内容**: 登录 Admin 后台 `/admin`，在「网站设置」中修改 Hero 标题、捐赠故事、Zelle 邮箱等

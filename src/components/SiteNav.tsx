@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Calendar, CalendarClock } from "lucide-react";
+import { Home, Calendar, CalendarClock, LogIn } from "lucide-react";
 import { useSettings } from "./SettingsProvider";
 
 export default function SiteNav() {
@@ -48,7 +48,16 @@ export default function SiteNav() {
               活动预告
             </Link>
           </div>
-          <span className="text-sm text-gray-500">{settings.navBrand}</span>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-500">{settings.navBrand}</span>
+            <Link
+              href="/admin/login"
+              className="flex items-center gap-2 text-sm font-medium text-zju-blue hover:text-zju-blue-600"
+            >
+              <LogIn className="w-4 h-4" />
+              管理员登陆
+            </Link>
+          </div>
         </div>
       </div>
     </nav>

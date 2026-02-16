@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { DEFAULT_SITE_SETTINGS } from "@/lib/default-settings";
 
 export async function GET() {
   try {
+    const { prisma } = await import("@/lib/prisma");
     const rows = await prisma.siteSettings.findMany();
     const settings: Record<string, string> = {};
     for (const row of rows) {

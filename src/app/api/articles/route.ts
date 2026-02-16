@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
   try {
+    const { prisma } = await import("@/lib/prisma");
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type"); // "past" | "upcoming"
 
