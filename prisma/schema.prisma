@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model SiteSettings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   // JSON string
+  updatedAt DateTime @updatedAt
+}
+
+model UploadedImage {
+  id        String   @id @default(cuid())
+  filename  String
+  url       String   // /uploads/xxx or full URL
+  alt       String?
+  category  String?  // e.g. "hero", "article", "gallery"
+  createdAt DateTime @default(now())
+}
+
+model Article {
+  id            String    @id @default(cuid())
+  title         String
+  content       String
+  coverImageUrl String?
+  type          String    // "past" | "upcoming"
+  eventDate     DateTime? // 活动日期
+  sortOrder     Int       @default(0) // 排序，数字越大越靠前
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}

@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --zju-blue: #003f87;
+  --zju-blue-light: #0052a3;
+}
+
+body {
+  @apply antialiased;
+}
