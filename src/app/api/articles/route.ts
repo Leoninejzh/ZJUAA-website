@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl || (process.env.VERCEL && dbUrl.startsWith("file:"))) {
+    return NextResponse.json([]);
+  }
   try {
     const { prisma } = await import("@/lib/prisma");
     const { searchParams } = new URL(request.url);

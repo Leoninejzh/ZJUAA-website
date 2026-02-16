@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { DEFAULT_SITE_SETTINGS } from "@/lib/default-settings";
 
 export async function GET() {
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl || (process.env.VERCEL && dbUrl.startsWith("file:"))) {
+    return NextResponse.json(DEFAULT_SITE_SETTINGS);
+  }
   try {
     const { prisma } = await import("@/lib/prisma");
     const rows = await prisma.siteSettings.findMany();

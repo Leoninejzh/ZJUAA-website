@@ -68,8 +68,11 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const refresh = useCallback(async () => {
     try {
       const res = await fetch("/api/settings");
+      if (!res.ok) return;
       const data = await res.json();
-      setSettings((prev) => ({ ...prev, ...data }));
+      if (data && typeof data === "object") {
+        setSettings((prev) => ({ ...prev, ...data }));
+      }
     } catch {
       // keep defaults
     }
