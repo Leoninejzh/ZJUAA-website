@@ -10,6 +10,7 @@
     "lint": "next lint",
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate dev",
+    "validate:docker": "node scripts/validate-docker-build.js",
     "db:push": "prisma db push"
   },
   "dependencies": {

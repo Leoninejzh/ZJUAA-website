@@ -5,7 +5,12 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
-RUN npm ci --ignore-scripts
+# prisma/schema.prisma 必须存在，postinstall 中的 prisma generate 依赖它
+COPY prisma ./prisma
+COPY scripts ./scripts
+ENV DATABASE_URL="postgresql://johndoe:randompassword@localhost:5432/mydb?schema=public"
+RUN node scripts/prepare-db.js
+RUN npm ci
 
 # Stage 2: 构建
 FROM node:20-alpine AS builder
