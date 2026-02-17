@@ -39,19 +39,23 @@ gcloud sql instances describe zjuaa-db --format='value(connectionName)'
 ```bash
 gcloud auth login
 gcloud config set project YOUR_PROJECT_ID
-gcloud services enable run.googleapis.com containerregistry.googleapis.com
+gcloud services enable run.googleapis.com containerregistry.googleapis.com cloudbuild.googleapis.com
 ```
 
 ## 3. 构建并推送镜像
 
 ```bash
-# 使用 Cloud Build 构建
-gcloud builds submit --tag gcr.io/YOUR_PROJECT_ID/zju-donation
+# 在项目根目录执行
+cd /path/to/ZJUAA-website
 
-# 或本地构建后推送
-docker build -t gcr.io/YOUR_PROJECT_ID/zju-donation .
-docker push gcr.io/YOUR_PROJECT_ID/zju-donation
+# 使用 cloudbuild.yaml 构建（推荐，内存更大）
+gcloud builds submit --config=cloudbuild.yaml
+
+# 或简单方式
+gcloud builds submit --tag gcr.io/YOUR_PROJECT_ID/zju-donation
 ```
+
+若构建失败，确保在**项目根目录**执行，且已启用 Cloud Build API。
 
 ## 4. 部署到 Cloud Run
 
@@ -93,6 +97,7 @@ gcloud run deploy zju-donation \
 
 ## 故障排查
 
+- **build step 0 failed**：在项目根目录执行 `gcloud builds submit`；或使用 `gcloud builds submit --config=cloudbuild.yaml`（cloudbuild.yaml 使用更大内存）
 - **数据库连接失败**：检查 `DATABASE_URL`、Cloud SQL 连接配置、VPC/防火墙
 - **NEXTAUTH 回调错误**：确保 `NEXTAUTH_URL` 与部署 URL 完全一致
 - **构建失败**：确认 `npm run build` 在本地可成功执行

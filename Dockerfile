@@ -15,6 +15,7 @@ COPY . .
 
 # Cloud Run 使用 PostgreSQL，构建时选用 Postgres schema
 ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN npm run build
 
 # Stage 3: 运行
