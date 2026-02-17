@@ -14,6 +14,8 @@ RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# 关键补丁：在 builder 阶段确保有 public 文件夹，后续 COPY 时不会因找不到而报错
 RUN mkdir -p public
 
 ENV PRISMA_CLI_BINARY_TARGETS="native,linux-musl-openssl-3.0.x"
