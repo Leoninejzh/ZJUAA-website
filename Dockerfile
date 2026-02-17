@@ -14,6 +14,7 @@ RUN apk add --no-cache openssl openssl1.1-compat
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# 强制创建 public 目录，确保后续 COPY 指令不会失效
 RUN mkdir -p public
 
 ENV PRISMA_CLI_BINARY_TARGETS="native,linux-musl-openssl-3.0.x"
