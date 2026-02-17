@@ -3,6 +3,7 @@
 
 # Stage 1: 依赖
 FROM node:20-alpine AS deps
+# 补上 Alpine 缺失的基础库
 RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 COPY package.json package-lock.json* ./
@@ -10,6 +11,7 @@ RUN npm ci --ignore-scripts
 
 # Stage 2: 构建
 FROM node:20-alpine AS builder
+# builder 阶段也要补
 RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
@@ -25,6 +27,7 @@ RUN npm run build
 
 # Stage 3: 运行
 FROM node:20-alpine AS runner
+# 运行阶段更要补
 RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 ENV NODE_ENV=production
