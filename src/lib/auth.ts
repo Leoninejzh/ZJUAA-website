@@ -13,17 +13,34 @@ export const authOptions = {
         password: { label: "密码", type: "password" },
       },
       async authorize(credentials) {
-        const username = process.env.ADMIN_USERNAME;
-        const passwordHash = process.env.ADMIN_PASSWORD_HASH;
-        const plainPassword = process.env.ADMIN_PASSWORD;
+        let username = process.env.ADMIN_USERNAME;
+        let passwordHash = process.env.ADMIN_PASSWORD_HASH;
+        let plainPassword = process.env.ADMIN_PASSWORD;
 
-        if (!username || !credentials?.password) {
-          return null;
+        // 环境变量未设置时，从数据库读取或使用默认
+        if (!username || (!passwordHash && !plainPassword)) {
+          try {
+            const { prisma } = await import("@/lib/prisma");
+            const dbUrl = process.env.DATABASE_URL;
+            const skipDb = process.env.SKIP_DATABASE === "1" || !dbUrl;
+            if (!skipDb) {
+              const adminUser = await prisma.siteSettings.findUnique({
+                where: { key: "admin_username" },
+              });
+              const adminHash = await prisma.siteSettings.findUnique({
+                where: { key: "admin_password_hash" },
+              });
+              if (adminUser) username = adminUser.value;
+              if (adminHash) passwordHash = adminHash.value;
+            }
+          } catch {}
         }
 
-        if (credentials.username !== username) {
-          return null;
-        }
+        username = username || "admin";
+        if (!passwordHash && !plainPassword) plainPassword = "admin123";
+
+        if (!credentials?.password) return null;
+        if (credentials.username !== username) return null;
 
         let valid = false;
         if (passwordHash) {

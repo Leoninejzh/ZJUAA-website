@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
-import { Settings, Image as ImageIcon, ExternalLink, FileText, Heart } from "lucide-react";
+import { Settings, Image as ImageIcon, ExternalLink, FileText, Heart, Key } from "lucide-react";
 
 export default async function AdminDashboardPage() {
   const session = await getServerSession(authOptions);
@@ -68,6 +68,19 @@ export default async function AdminDashboardPage() {
           </h2>
           <p className="text-gray-500 text-sm">
             上传文章图片、Hero 背景图等，管理已上传的图片
+          </p>
+        </Link>
+
+        <Link
+          href="/admin/password"
+          className="block p-6 bg-white rounded-xl border border-gray-200 hover:border-zju-blue/50 hover:shadow-lg transition-all group"
+        >
+          <Key className="w-10 h-10 text-zju-blue mb-4" />
+          <h2 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-zju-blue">
+            修改密码
+          </h2>
+          <p className="text-gray-500 text-sm">
+            修改管理员用户名和密码
           </p>
         </Link>
       </div>

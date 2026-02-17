@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { Settings, Image, LayoutDashboard, LogOut, FileText, Heart } from "lucide-react";
+import { Settings, Image, LayoutDashboard, LogOut, FileText, Heart, Key } from "lucide-react";
 
 const navItems = [
   { href: "/admin", label: "概览", icon: LayoutDashboard },
@@ -11,6 +11,7 @@ const navItems = [
   { href: "/admin/articles", label: "活动文章", icon: FileText },
   { href: "/admin/settings", label: "网站设置", icon: Settings },
   { href: "/admin/images", label: "图片管理", icon: Image },
+  { href: "/admin/password", label: "修改密码", icon: Key },
 ];
 
 export default function AdminNav() {
