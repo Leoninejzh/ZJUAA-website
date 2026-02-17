@@ -13,9 +13,21 @@ export const authOptions = {
         password: { label: "密码", type: "password" },
       },
       async authorize(credentials) {
-        let username = process.env.ADMIN_USERNAME;
-        let passwordHash = process.env.ADMIN_PASSWORD_HASH;
-        let plainPassword = process.env.ADMIN_PASSWORD;
+        const inputUser = (credentials?.username ?? "").trim();
+        const inputPass = (credentials?.password ?? "").trim();
+        if (!inputPass) return null;
+
+        // 恢复模式：强制使用默认 admin/admin123 登录，便于改密
+        if (process.env.ADMIN_USE_DEFAULT === "1") {
+          if (inputUser === "admin" && inputPass === "admin123") {
+            return { id: "admin", name: "admin" };
+          }
+          return null;
+        }
+
+        let username = (process.env.ADMIN_USERNAME ?? "").trim() || undefined;
+        let passwordHash = (process.env.ADMIN_PASSWORD_HASH ?? "").trim() || undefined;
+        let plainPassword = (process.env.ADMIN_PASSWORD ?? "").trim() || undefined;
 
         // 环境变量未设置时，从数据库读取或使用默认
         if (!username || (!passwordHash && !plainPassword)) {
@@ -39,14 +51,13 @@ export const authOptions = {
         username = username || "admin";
         if (!passwordHash && !plainPassword) plainPassword = "admin123";
 
-        if (!credentials?.password) return null;
-        if (credentials.username !== username) return null;
+        if (inputUser !== username) return null;
 
         let valid = false;
         if (passwordHash) {
-          valid = await compare(credentials.password, passwordHash);
+          valid = await compare(inputPass, passwordHash);
         } else if (plainPassword) {
-          valid = credentials.password === plainPassword;
+          valid = inputPass === plainPassword;
         }
         if (!valid) return null;
 
