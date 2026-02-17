@@ -31,7 +31,7 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# 【核心修复 2】：容错搬运 - 先建 public，再搬运，即使 builder 里是空的也不会报错
+# 【核心修复 2】：改用「容错搬运」- 即使 builder 里的 public 是空的，我们先在本地建一个，再尝试搬运
 RUN mkdir -p public
 COPY --from=builder /app/public ./public/
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
