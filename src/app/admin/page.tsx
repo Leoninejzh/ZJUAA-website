@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
-import { Settings, Image as ImageIcon, ExternalLink, FileText } from "lucide-react";
+import { Settings, Image as ImageIcon, ExternalLink, FileText, Heart } from "lucide-react";
 
 export default async function AdminDashboardPage() {
   const session = await getServerSession(authOptions);
@@ -19,6 +19,19 @@ export default async function AdminDashboardPage() {
       </p>
 
       <div className="grid sm:grid-cols-2 gap-6">
+        <Link
+          href="/admin/donations"
+          className="block p-6 bg-white rounded-xl border border-gray-200 hover:border-zju-blue/50 hover:shadow-lg transition-all group"
+        >
+          <Heart className="w-10 h-10 text-zju-blue mb-4" />
+          <h2 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-zju-blue">
+            捐赠记录
+          </h2>
+          <p className="text-gray-500 text-sm">
+            查看所有捐赠人提交的信息
+          </p>
+        </Link>
+
         <Link
           href="/admin/settings"
           className="block p-6 bg-white rounded-xl border border-gray-200 hover:border-zju-blue/50 hover:shadow-lg transition-all group"

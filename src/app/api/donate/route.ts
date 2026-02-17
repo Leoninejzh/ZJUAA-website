@@ -4,22 +4,45 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Log donation data (for debugging / future DB integration)
-    console.log("[Donation API] Received donation:", {
-      timestamp: new Date().toISOString(),
-      amount: body.amount,
-      name: body.name,
-      email: body.email,
-      graduationYear: body.graduationYear,
-      major: body.major,
-      message: body.message,
-      paymentMethod: body.paymentMethod,
-    });
+    const amount = Number(body.amount);
+    const name = String(body.name || "").trim();
+    const email = String(body.email || "").trim();
+    const graduationYear = String(body.graduationYear || "").trim();
+    const major = String(body.major || "").trim();
+    const message = body.message ? String(body.message).trim() : null;
+    const paymentMethod = body.paymentMethod === "card" ? "card" : "zelle";
 
-    // Simulate successful processing
-    // TODO: Integrate with database (e.g., Prisma, Supabase)
-    // TODO: Integrate Stripe/PayPal for card payments
-    // TODO: Send confirmation email
+    if (!amount || amount < 1 || !name || !email || !graduationYear || !major) {
+      return NextResponse.json(
+        { success: false, message: "请填写完整信息" },
+        { status: 400 }
+      );
+    }
+
+    const dbUrl = process.env.DATABASE_URL;
+    const skipDb =
+      process.env.SKIP_DATABASE === "1" ||
+      !dbUrl ||
+      (process.env.VERCEL && dbUrl.startsWith("file:"));
+
+    if (!skipDb) {
+      try {
+        const { prisma } = await import("@/lib/prisma");
+        await prisma.donation.create({
+          data: {
+            amount,
+            name,
+            email,
+            graduationYear,
+            major,
+            message,
+            paymentMethod,
+          },
+        });
+      } catch (dbError) {
+        console.error("[Donation API] DB error:", dbError);
+      }
+    }
 
     return NextResponse.json(
       {

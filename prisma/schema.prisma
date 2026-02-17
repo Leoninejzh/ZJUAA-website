@@ -35,3 +35,15 @@ model Article {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
+
+model Donation {
+  id             String   @id @default(cuid())
+  amount         Float
+  name           String
+  email          String
+  graduationYear String
+  major          String
+  message        String?
+  paymentMethod  String
+  createdAt      DateTime @default(now())
+}
