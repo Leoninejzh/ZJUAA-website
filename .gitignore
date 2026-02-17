@@ -31,8 +31,8 @@ prisma/*.db
 prisma/dev.db
 prisma/prisma/
 
-# uploads (user-uploaded images)
-public/uploads
+
+
 
 # vercel
 .vercel
