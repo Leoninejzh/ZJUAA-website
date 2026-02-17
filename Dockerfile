@@ -10,10 +10,11 @@ RUN npm ci --ignore-scripts
 
 # Stage 2: 构建
 FROM node:20-alpine AS builder
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl openssl1.1-compat
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+RUN mkdir -p public
 
 ENV PRISMA_CLI_BINARY_TARGETS="native,linux-musl-openssl-3.0.x"
 ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
@@ -22,7 +23,7 @@ RUN npm run build
 
 # Stage 3: 运行
 FROM node:20-alpine AS runner
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl openssl1.1-compat
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
