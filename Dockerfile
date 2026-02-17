@@ -10,11 +10,10 @@ RUN npm ci --ignore-scripts
 
 # Stage 2: 构建
 FROM node:20-alpine AS builder
-RUN apk add --no-cache openssl openssl1.1-compat
+RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# 强制创建 public 目录，确保后续 COPY 指令不会失效
 RUN mkdir -p public
 
 ENV PRISMA_CLI_BINARY_TARGETS="native,linux-musl-openssl-3.0.x"
@@ -24,7 +23,7 @@ RUN npm run build
 
 # Stage 3: 运行
 FROM node:20-alpine AS runner
-RUN apk add --no-cache openssl openssl1.1-compat
+RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
