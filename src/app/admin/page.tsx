@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
-import { Settings, Image, ExternalLink, FileText } from "lucide-react";
+import { Settings, Image as ImageIcon, ExternalLink, FileText } from "lucide-react";
 
 export default async function AdminDashboardPage() {
   const session = await getServerSession(authOptions);
@@ -49,7 +49,7 @@ export default async function AdminDashboardPage() {
           href="/admin/images"
           className="block p-6 bg-white rounded-xl border border-gray-200 hover:border-zju-blue/50 hover:shadow-lg transition-all group"
         >
-          <Image className="w-10 h-10 text-zju-blue mb-4" />
+          <ImageIcon className="w-10 h-10 text-zju-blue mb-4" />
           <h2 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-zju-blue">
             图片管理
           </h2>

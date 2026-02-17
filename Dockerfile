@@ -1,27 +1,30 @@
-# Stage 1: Dependencies
-FROM node:24-alpine AS deps
+# 浙大捐赠站 - Google Cloud Run 优化版
+# 使用 PostgreSQL（Cloud Run 无状态，需外部数据库）
+
+# Stage 1: 依赖
+FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
-RUN npm install
+RUN npm ci
 
-# Stage 2: Builder
-FROM node:24-alpine AS builder
+# Stage 2: 构建
+FROM node:20-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-ENV DATABASE_URL="file:./prisma/dev.db"
-RUN npx prisma generate && npm run build
 
-# Stage 3: Runner
-FROM node:24-alpine AS runner
+# Cloud Run 使用 PostgreSQL，构建时选用 Postgres schema
+ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
+RUN npm run build
+
+# Stage 3: 运行
+FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV DATABASE_URL="file:/app/data/dev.db"
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
-RUN mkdir -p /app/data /app/public/uploads && chown -R nextjs:nodejs /app/data /app/public
 
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
@@ -29,13 +32,12 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules ./node_modules
-COPY docker-entrypoint.sh ./
+COPY --from=builder /app/docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
 
 USER nextjs
-EXPOSE 3000
-ENV PORT=3000
+EXPOSE 8080
+ENV PORT=8080
 ENV HOSTNAME="0.0.0.0"
 
 ENTRYPOINT ["./docker-entrypoint.sh"]

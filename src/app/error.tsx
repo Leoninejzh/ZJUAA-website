@@ -18,7 +18,7 @@ export default function Error({
       <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md text-center">
         <h1 className="text-xl font-bold text-red-600 mb-2">出错了</h1>
         <p className="text-gray-600 mb-6">
-          页面加载时发生错误。请检查环境变量配置（DATABASE_URL、NEXTAUTH_SECRET 等）。
+          页面加载时发生错误。请检查环境变量配置（DATABASE_URL、NEXTAUTH_SECRET 等）。若 Prisma 报 EPERM，可在 .env 中设置 SKIP_DATABASE=1 临时跳过数据库。
         </p>
         <button
           onClick={reset}

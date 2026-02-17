@@ -2,7 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 
-export const authOptions: NextAuthOptions = {
+export const authOptions = {
   secret: process.env.NEXTAUTH_SECRET || "dev-secret-change-in-production",
   trustHost: true,
   providers: [
@@ -54,4 +54,4 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-};
+} as NextAuthOptions;

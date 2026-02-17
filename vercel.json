@@ -1,5 +1,0 @@
-{
-  "framework": "nextjs",
-  "buildCommand": "node scripts/prepare-db.js && prisma generate && next build",
-  "installCommand": "npm install"
-}

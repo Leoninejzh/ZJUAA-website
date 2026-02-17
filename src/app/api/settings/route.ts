@@ -3,7 +3,11 @@ import { DEFAULT_SITE_SETTINGS } from "@/lib/default-settings";
 
 export async function GET() {
   const dbUrl = process.env.DATABASE_URL;
-  if (!dbUrl || (process.env.VERCEL && dbUrl.startsWith("file:"))) {
+  const skipDb =
+    process.env.SKIP_DATABASE === "1" ||
+    !dbUrl ||
+    (process.env.VERCEL && dbUrl.startsWith("file:"));
+  if (skipDb) {
     return NextResponse.json(DEFAULT_SITE_SETTINGS);
   }
   try {
