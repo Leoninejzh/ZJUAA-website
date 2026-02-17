@@ -3,34 +3,33 @@
 
 # Stage 1: 依赖
 FROM node:20-alpine AS deps
+RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 COPY package.json package-lock.json* ./
-# prisma/schema.prisma 必须存在，postinstall 中的 prisma generate 依赖它
-COPY prisma ./prisma
-COPY scripts ./scripts
-ENV DATABASE_URL="postgresql://johndoe:randompassword@localhost:5432/mydb?schema=public"
-RUN node scripts/prepare-db.js
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 # Stage 2: 构建
 FROM node:20-alpine AS builder
+RUN apk add --no-cache openssl
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Cloud Run 使用 PostgreSQL，构建时选用 Postgres schema
+ENV PRISMA_CLI_BINARY_TARGETS="native,linux-musl-openssl-3.0.x"
 ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN npm run build
 
 # Stage 3: 运行
 FROM node:20-alpine AS runner
+RUN apk add --no-cache openssl
 WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
+RUN mkdir -p public
 
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./

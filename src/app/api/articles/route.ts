@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request) {
   const dbUrl = process.env.DATABASE_URL;
   if (!dbUrl || (process.env.VERCEL && dbUrl.startsWith("file:"))) {
