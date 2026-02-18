@@ -18,6 +18,11 @@ jobs:
 
       - run: npm ci
 
+      - name: Prepare DB schema (根据 DATABASE_URL 选择 PostgreSQL/SQLite)
+        run: node scripts/prepare-db.js
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
       - name: Database Push
         run: npx prisma db push --accept-data-loss
         env:
