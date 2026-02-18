@@ -18,11 +18,13 @@ if (!process.env.DATABASE_URL) {
 const dbUrl = process.env.DATABASE_URL || "";
 const isPostgres = dbUrl.startsWith("postgresql://") || dbUrl.startsWith("postgres://");
 const isSqlite = dbUrl.startsWith("file:");
+const isCI = process.env.CI === "true";
 
 const schemaDir = path.join(__dirname, "..", "prisma");
 const mainSchema = path.join(schemaDir, "schema.prisma");
 
-if (isPostgres) {
+// CI 环境（GitHub Actions）始终使用 PostgreSQL，避免 P1012
+if (isCI || isPostgres) {
   const postgresSchema = path.join(schemaDir, "schema.postgres.prisma");
   if (fs.existsSync(postgresSchema)) {
     fs.copyFileSync(postgresSchema, mainSchema);
