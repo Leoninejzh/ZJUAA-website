@@ -95,9 +95,32 @@ gcloud run deploy zju-donation \
 
 在 Cloud Run 控制台 → 服务 → 管理自定义网域，添加你的域名。
 
+## 部署前必做：数据库推流
+
+**仅配置环境变量不够**，必须执行一次 `npx prisma db push` 将表结构同步到 Supabase：
+
+```bash
+DATABASE_URL="postgresql://postgres:密码@db.xxx.supabase.co:5432/postgres" npx prisma db push
+```
+
+验证：Supabase Table Editor 中应出现 `SiteSettings`、`Donation`、`Article` 等表。
+
+## 环境变量：密码特殊字符
+
+若密码含 `@`、`#`、`!`、`*`，需 URL 编码：`@` → `%40`，`#` → `%23`，`!` → `%21`，`*` → `%2A`。
+
+**必填清单**：Cloud Run 面板中需手动添加 `DATABASE_URL`、`NEXTAUTH_SECRET`、`NEXTAUTH_URL`、`ADMIN_USERNAME`、`ADMIN_PASSWORD`。
+
 ## 故障排查
 
-- **build step 0 failed**：在项目根目录执行 `gcloud builds submit`；或使用 `gcloud builds submit --config=cloudbuild.yaml`（cloudbuild.yaml 使用更大内存）
+- **build step 0 failed**：在项目根目录执行 `gcloud builds submit`；或使用 `gcloud builds submit --config=cloudbuild.yaml`
+- **PrismaClientInitializationError**：连不上数据库。检查 `DATABASE_URL` 是否正确；可尝试在末尾加 `?connect_timeout=30`
+- **Table "xxx" not found**：未执行 `npx prisma db push`，需先同步表结构
 - **数据库连接失败**：检查 `DATABASE_URL`、Cloud SQL 连接配置、VPC/防火墙
 - **NEXTAUTH 回调错误**：确保 `NEXTAUTH_URL` 与部署 URL 完全一致
-- **构建失败**：确认 `npm run build` 在本地可成功执行
+
+## 查看 Cloud Run 实时日志
+
+1. 进入 Google Cloud 控制台 → 你的服务
+2. 点击「日志」(LOGS) 选项卡
+3. 查找红色报错信息，根据错误类型对照上方故障排查
