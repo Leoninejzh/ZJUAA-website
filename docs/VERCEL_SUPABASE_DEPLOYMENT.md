@@ -10,19 +10,25 @@
 
 **仅配置环境变量是不够的**，必须把本地 Prisma schema 同步到 Supabase。
 
-在 `.env` 或 `.env.local` 中设置 `DATABASE_URL` 为 Supabase 连接串，然后执行：
+### 方式 A：本地执行（网络可访问 Supabase 时）
+
+在 `.env` 中设置 `DATABASE_URL` 后执行：
 
 ```bash
 npx prisma db push
 ```
 
-或一行命令（将 `[YOUR-PASSWORD]` 替换为实际密码）：
+### 方式 B：GitHub Actions 云端执行（本地无法连接 Supabase 时）
 
-```bash
-DATABASE_URL="postgresql://postgres:[YOUR-PASSWORD]@db.ldbbqlmaewuluqmkclno.supabase.co:5432/postgres" npx prisma db push
-```
+若本地网络无法访问 Supabase（如 "This site can't be reached"），可用 GitHub 云端执行：
 
-**验证**：登录 Supabase 后台 → Table Editor，应出现 `SiteSettings`、`Donation`、`Article`、`UploadedImage` 等表。若为空，管理后台会因找不到表而报错。
+1. 打开仓库 **Settings** → **Secrets and variables** → **Actions**
+2. 点击 **New repository secret**，添加：
+   - Name: `DATABASE_URL`
+   - Value: `postgresql://postgres:你的密码@db.ldbbqlmaewuluqmkclno.supabase.co:5432/postgres`
+3. 打开 **Actions** → 选择 **Prisma DB Push** → **Run workflow**
+
+**验证**：Supabase 后台 → Table Editor，应出现 `SiteSettings`、`Donation`、`Article`、`UploadedImage` 等表。
 
 ## 2. 连接 Vercel
 

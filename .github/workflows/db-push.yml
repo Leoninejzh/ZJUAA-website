@@ -1,0 +1,24 @@
+# 在 GitHub 云端执行 prisma db push（解决本地无法连接 Supabase 的问题）
+# 使用：仓库 Settings → Secrets → 添加 DATABASE_URL，然后 Actions → Run workflow
+name: Prisma DB Push
+
+on:
+  workflow_dispatch:  # 手动触发
+
+jobs:
+  db-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: Push schema to Supabase
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npx prisma db push
