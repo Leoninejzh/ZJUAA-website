@@ -26,6 +26,9 @@ yarn-error.log*
 .env
 .env*.local
 
+# uploads (user content)
+/public/uploads/
+
 # database
 prisma/*.db
 prisma/dev.db
