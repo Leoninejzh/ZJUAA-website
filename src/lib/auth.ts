@@ -13,26 +13,29 @@ export const authOptions = {
         password: { label: "密码", type: "password" },
       },
       async authorize(credentials) {
-        const inputUser = (credentials?.username ?? "").trim();
-        const inputPass = (credentials?.password ?? "").trim();
-        if (!inputPass) return null;
+        const username = (credentials?.username ?? "").trim();
+        const password = (credentials?.password ?? "").trim();
+        if (!password) return null;
 
-        // 恢复模式：使用环境变量登录，便于改密
-        if (process.env.ADMIN_USE_DEFAULT === "1") {
-          const recoveryUser = (process.env.ADMIN_USERNAME ?? "admin").trim();
-          const recoveryPass = (process.env.ADMIN_PASSWORD ?? "admin123").trim();
-          if (inputUser === recoveryUser && inputPass === recoveryPass) {
-            return { id: "admin", name: recoveryUser };
-          }
-          return null;
+        // 1. 优先匹配环境变量（解决 Luning 进不去的问题）
+        const envAdminUser = process.env.ADMIN_USERNAME || "admin";
+        const envAdminPass = process.env.ADMIN_PASSWORD;
+
+        if (username === envAdminUser && envAdminPass && password === envAdminPass) {
+          return {
+            id: "admin-id",
+            name: envAdminUser,
+            email: "admin@zjuaa.org",
+            role: "ADMIN",
+          };
         }
 
-        let username = (process.env.ADMIN_USERNAME ?? "").trim() || undefined;
+        // 2. 环境变量不匹配时，尝试数据库（SiteSettings）
+        let dbUsername = (process.env.ADMIN_USERNAME ?? "").trim() || undefined;
         let passwordHash = (process.env.ADMIN_PASSWORD_HASH ?? "").trim() || undefined;
         let plainPassword = (process.env.ADMIN_PASSWORD ?? "").trim() || undefined;
 
-        // 环境变量未设置时，从数据库读取或使用默认
-        if (!username || (!passwordHash && !plainPassword)) {
+        if (!dbUsername || (!passwordHash && !plainPassword)) {
           try {
             const { prisma } = await import("@/lib/prisma");
             const dbUrl = process.env.DATABASE_URL;
@@ -44,26 +47,23 @@ export const authOptions = {
               const adminHash = await prisma.siteSettings.findUnique({
                 where: { key: "admin_password_hash" },
               });
-              if (adminUser) username = adminUser.value;
+              if (adminUser) dbUsername = adminUser.value;
               if (adminHash) passwordHash = adminHash.value;
             }
           } catch {}
         }
 
-        username = username || (process.env.ADMIN_USERNAME ?? "admin").trim() || "admin";
+        dbUsername = dbUsername || (process.env.ADMIN_USERNAME ?? "admin").trim() || "admin";
         if (!passwordHash && !plainPassword) plainPassword = (process.env.ADMIN_PASSWORD ?? "admin123").trim() || "admin123";
 
-        if (inputUser !== username) return null;
+        if (username !== dbUsername) return null;
 
-        let valid = false;
-        if (passwordHash) {
-          valid = await compare(inputPass, passwordHash);
-        } else if (plainPassword) {
-          valid = inputPass === plainPassword;
-        }
+        const valid = passwordHash
+          ? await compare(password, passwordHash)
+          : password === plainPassword;
         if (!valid) return null;
 
-        return { id: "admin", name: username };
+        return { id: "admin-id", name: dbUsername };
       },
     }),
   ],
