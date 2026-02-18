@@ -35,3 +35,10 @@ jobs:
 
       - name: Build
         run: npm run build
+        
+- name: Database Push
+  run: npx prisma db push --accept-data-loss
+  env:
+    DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    # 开启详细日志，这样我们可以看到具体的连接握手过程
+    DEBUG: prisma:client:*,prisma:engine:*
