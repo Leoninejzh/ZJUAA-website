@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function AdminError({
   error,
@@ -9,9 +9,18 @@ export default function AdminError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const [health, setHealth] = useState<{ ok?: boolean; checks?: Record<string, boolean>; hint?: string } | null>(null);
+
   useEffect(() => {
     console.error("Admin error:", error);
   }, [error]);
+
+  useEffect(() => {
+    fetch("/api/health")
+      .then((r) => r.json())
+      .then(setHealth)
+      .catch(() => setHealth({ ok: false }));
+  }, []);
 
   const isWebpackCallError =
     error?.message?.includes("reading 'call'") ?? false;
@@ -19,6 +28,12 @@ export default function AdminError({
     error?.message?.includes("NEXTAUTH") ||
     error?.message?.includes("secret") ||
     error?.message?.includes("callback");
+
+  const missingVars = health?.checks
+    ? Object.entries(health.checks)
+        .filter(([, v]) => !v)
+        .map(([k]) => k)
+    : [];
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
@@ -29,9 +44,14 @@ export default function AdminError({
             <>
               页面加载异常，通常由缓存或模块加载问题引起。请点击「刷新页面」重新加载。
             </>
-          ) : isNextAuthError ? (
+          ) : isNextAuthError || missingVars.length > 0 ? (
             <>
-              认证配置异常。请确保 Vercel/部署环境已设置 <code className="bg-gray-100 px-1 rounded">NEXTAUTH_SECRET</code> 和 <code className="bg-gray-100 px-1 rounded">NEXTAUTH_URL</code>（需为部署后的完整网址）。
+              认证配置异常。请在部署平台设置：<code className="bg-gray-100 px-1 rounded">NEXTAUTH_SECRET</code>、<code className="bg-gray-100 px-1 rounded">NEXTAUTH_URL</code>（需为完整网址）。
+              {missingVars.length > 0 && (
+                <span className="block mt-2 text-sm text-amber-600">
+                  当前缺失：{missingVars.join(", ")}
+                </span>
+              )}
             </>
           ) : (
             <>
@@ -39,10 +59,13 @@ export default function AdminError({
             </>
           )}
         </p>
-        {process.env.NODE_ENV === "development" && error?.message && (
+        {(process.env.NODE_ENV === "development" || !health?.ok) && error?.message && (
           <pre className="text-left text-xs text-red-500 bg-red-50 p-3 rounded mb-4 overflow-auto max-h-24">
             {error.message}
           </pre>
+        )}
+        {health?.hint && (
+          <p className="text-sm text-gray-500 mb-4">{health.hint}</p>
         )}
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <button
