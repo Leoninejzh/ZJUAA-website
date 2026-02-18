@@ -1,14 +1,31 @@
-import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+"use client";
+
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import Link from "next/link";
 import { Settings, Image as ImageIcon, ExternalLink, FileText, Heart, Key } from "lucide-react";
 
-export default async function AdminDashboardPage() {
-  const session = await getServerSession(authOptions);
+export default function AdminDashboardPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.replace("/admin/login");
+    }
+  }, [status, router]);
+
+  if (status === "loading") {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-gray-500">加载中...</div>
+      </div>
+    );
+  }
 
   if (!session) {
-    redirect("/admin/login");
+    return null;
   }
 
   return (

@@ -13,6 +13,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "未授权" }, { status: 401 });
   }
 
+  const skipDb =
+    process.env.SKIP_DATABASE === "1" ||
+    !process.env.DATABASE_URL ||
+    (process.env.VERCEL && process.env.DATABASE_URL?.startsWith("file:"));
+  if (skipDb) {
+    return NextResponse.json({ error: "当前无数据库" }, { status: 400 });
+  }
+
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;

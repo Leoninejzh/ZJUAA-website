@@ -4,7 +4,11 @@ export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   const dbUrl = process.env.DATABASE_URL;
-  if (!dbUrl || (process.env.VERCEL && dbUrl.startsWith("file:"))) {
+  const skipDb =
+    process.env.SKIP_DATABASE === "1" ||
+    !dbUrl ||
+    (process.env.VERCEL && dbUrl.startsWith("file:"));
+  if (skipDb) {
     return NextResponse.json([]);
   }
   try {

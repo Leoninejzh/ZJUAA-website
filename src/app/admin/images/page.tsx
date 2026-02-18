@@ -1,13 +1,24 @@
-import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+"use client";
+
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import ImageManager from "@/components/ImageManager";
 
-export default async function AdminImagesPage() {
-  const session = await getServerSession(authOptions);
+export default function AdminImagesPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
-  if (!session) {
-    redirect("/admin/login");
+  useEffect(() => {
+    if (status === "unauthenticated") router.replace("/admin/login");
+  }, [status, router]);
+
+  if (status === "loading" || !session) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="text-gray-500">加载中...</div>
+      </div>
+    );
   }
 
   return (

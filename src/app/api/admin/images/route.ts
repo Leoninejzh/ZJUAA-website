@@ -11,6 +11,14 @@ export async function GET() {
     return NextResponse.json({ error: "未授权" }, { status: 401 });
   }
 
+  const skipDb =
+    process.env.SKIP_DATABASE === "1" ||
+    !process.env.DATABASE_URL ||
+    (process.env.VERCEL && process.env.DATABASE_URL?.startsWith("file:"));
+  if (skipDb) {
+    return NextResponse.json([]);
+  }
+
   try {
     const images = await prisma.uploadedImage.findMany({
       orderBy: { createdAt: "desc" },
@@ -26,6 +34,14 @@ export async function DELETE(request: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) {
     return NextResponse.json({ error: "未授权" }, { status: 401 });
+  }
+
+  const skipDb =
+    process.env.SKIP_DATABASE === "1" ||
+    !process.env.DATABASE_URL ||
+    (process.env.VERCEL && process.env.DATABASE_URL?.startsWith("file:"));
+  if (skipDb) {
+    return NextResponse.json({ error: "当前无数据库" }, { status: 400 });
   }
 
   try {
