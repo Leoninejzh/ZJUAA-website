@@ -1,6 +1,5 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { compare } from "bcryptjs";
 
 export const authOptions = {
   secret: process.env.NEXTAUTH_SECRET || "dev-secret-change-in-production",
@@ -13,57 +12,28 @@ export const authOptions = {
         password: { label: "密码", type: "password" },
       },
       async authorize(credentials) {
-        const username = (credentials?.username ?? "").trim();
-        const password = (credentials?.password ?? "").trim();
-        if (!password) return null;
+        // 打印日志，这样我们能在 Google Cloud Logs 看到是谁在尝试登录
+        console.log("正在尝试登录，用户名:", credentials?.username);
+        console.log("期待的管理员用户名:", process.env.ADMIN_USERNAME);
 
-        // 1. 优先匹配环境变量（解决 Luning 进不去的问题）
-        const envAdminUser = process.env.ADMIN_USERNAME || "admin";
-        const envAdminPass = process.env.ADMIN_PASSWORD;
+        const { username, password } = credentials || {};
 
-        if (username === envAdminUser && envAdminPass && password === envAdminPass) {
+        // 只要用户名匹配环境变量（Luning）且密码匹配，就放行
+        if (
+          username === process.env.ADMIN_USERNAME &&
+          password === process.env.ADMIN_PASSWORD
+        ) {
           return {
             id: "admin-id",
-            name: envAdminUser,
-            email: "admin@zjuaa.org",
+            name: process.env.ADMIN_USERNAME,
             role: "ADMIN",
           };
         }
 
-        // 2. 环境变量不匹配时，尝试数据库（SiteSettings）
-        let dbUsername = (process.env.ADMIN_USERNAME ?? "").trim() || undefined;
-        let passwordHash = (process.env.ADMIN_PASSWORD_HASH ?? "").trim() || undefined;
-        let plainPassword = (process.env.ADMIN_PASSWORD ?? "").trim() || undefined;
+        // 保底：如果数据库已经同步，尝试从数据库找 (解决 Luning 进不去的问题)
+        // const user = await prisma.user.findFirst({ where: { username } });
 
-        if (!dbUsername || (!passwordHash && !plainPassword)) {
-          try {
-            const { prisma } = await import("@/lib/prisma");
-            const dbUrl = process.env.DATABASE_URL;
-            const skipDb = process.env.SKIP_DATABASE === "1" || !dbUrl;
-            if (!skipDb) {
-              const adminUser = await prisma.siteSettings.findUnique({
-                where: { key: "admin_username" },
-              });
-              const adminHash = await prisma.siteSettings.findUnique({
-                where: { key: "admin_password_hash" },
-              });
-              if (adminUser) dbUsername = adminUser.value;
-              if (adminHash) passwordHash = adminHash.value;
-            }
-          } catch {}
-        }
-
-        dbUsername = dbUsername || (process.env.ADMIN_USERNAME ?? "admin").trim() || "admin";
-        if (!passwordHash && !plainPassword) plainPassword = (process.env.ADMIN_PASSWORD ?? "admin123").trim() || "admin123";
-
-        if (username !== dbUsername) return null;
-
-        const valid = passwordHash
-          ? await compare(password, passwordHash)
-          : password === plainPassword;
-        if (!valid) return null;
-
-        return { id: "admin-id", name: dbUsername };
+        throw new Error("用户名或密码错误");
       },
     }),
   ],
