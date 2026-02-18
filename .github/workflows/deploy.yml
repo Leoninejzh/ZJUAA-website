@@ -1,0 +1,32 @@
+name: Deploy ZJUAA Website
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Database Push
+        run: npx prisma db push --accept-data-loss
+        env:
+          # 这一行必不可少，否则 prisma 找不到数据库地址
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Prisma Generate
+        run: npx prisma generate
+
+      - name: Build
+        run: npm run build

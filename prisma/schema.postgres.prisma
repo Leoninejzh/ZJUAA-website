@@ -1,5 +1,6 @@
 generator client {
   provider      = "prisma-client-js"
+  // 支持本地 native 和云端 linux
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 

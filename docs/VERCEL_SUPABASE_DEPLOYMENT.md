@@ -45,7 +45,7 @@ npx prisma db push
 |------|-----|------|
 | `DATABASE_URL` | Supabase 连接串 | 见下方「密码特殊字符」说明 |
 | `NEXTAUTH_SECRET` | 随机字符串 | 如 `openssl rand -base64 32` 生成 |
-| `NEXTAUTH_URL` | `https://你的域名.vercel.app` | 部署后填写实际域名 |
+| `NEXTAUTH_URL` | `https://你的域名.vercel.app` | **必填**，必须与部署后的完整网址一致，否则管理后台会报错 |
 | `ADMIN_USERNAME` | `admin` | 管理员用户名 |
 | `ADMIN_PASSWORD` | 你的密码 | 管理员密码 |
 
@@ -66,7 +66,7 @@ npx prisma db push
 
 点击 **Deploy**，Vercel 会自动构建并部署。
 
-部署完成后，将 `NEXTAUTH_URL` 更新为实际域名（如 `https://zju-donation.vercel.app`）。
+**重要**：部署完成后，务必在 Vercel 环境变量中将 `NEXTAUTH_URL` 更新为实际域名（如 `https://zju-donation.vercel.app`），否则管理后台会报「加载时发生错误」。
 
 ## 5. 自定义域名（可选）
 

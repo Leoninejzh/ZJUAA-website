@@ -13,7 +13,9 @@
 ```bash
 npm install
 cp .env.example .env.local
-# 编辑 .env.local：DATABASE_URL、NEXTAUTH_*、ADMIN_*
+# 本地用 SQLite：DATABASE_URL="file:./prisma/dev.db"
+# 或 Supabase：DATABASE_URL="postgresql://postgres:密码@db.xxx.supabase.co:5432/postgres"
+# 编辑 .env.local：NEXTAUTH_*、ADMIN_*
 npm run db:push
 npm run dev
 ```

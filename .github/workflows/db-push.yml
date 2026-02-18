@@ -18,7 +18,8 @@ jobs:
 
       - run: npm ci
 
-      - name: Push schema to Supabase
+      - name: Database Push
+        run: npx prisma db push --accept-data-loss
         env:
+          # 这一行必不可少，否则 prisma 找不到数据库地址
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: npx prisma db push

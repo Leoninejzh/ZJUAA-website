@@ -60,25 +60,35 @@ gcloud builds submit --tag gcr.io/YOUR_PROJECT_ID/zju-donation
 ## 4. 部署到 Cloud Run
 
 ```bash
-gcloud run deploy zju-donation \
-  --image gcr.io/YOUR_PROJECT_ID/zju-donation \
+gcloud run deploy zju-website \
+  --image gcr.io/YOUR_PROJECT_ID/zju-website \
   --platform managed \
-  --region us-central1 \
+  --region us-east1 \
   --allow-unauthenticated \
-  --set-env-vars "DATABASE_URL=postgresql://user:pass@host:5432/db" \
+  --set-env-vars "DATABASE_URL=postgresql://postgres:密码@db.xxx.supabase.co:5432/postgres" \
   --set-env-vars "NEXTAUTH_SECRET=your_random_secret" \
-  --set-env-vars "NEXTAUTH_URL=https://your-service-xxx.run.app" \
+  --set-env-vars "NEXTAUTH_URL=https://zju-website-xxx.run.app" \
   --set-env-vars "ADMIN_USERNAME=admin" \
   --set-env-vars "ADMIN_PASSWORD=your_password"
 ```
+
+**重要**：部署后首次访问前，必须在 Cloud Run 控制台确认环境变量已正确设置：
+- 进入 **Cloud Run** → 选择服务 **zju-website** → **编辑与部署新版本** → **变量和密钥**
+- 确保 `DATABASE_URL`、`NEXTAUTH_SECRET`、`NEXTAUTH_URL`、`ADMIN_USERNAME`、`ADMIN_PASSWORD` 均已填写
+
+**Supabase 连接**：若使用 Supabase，推荐使用 **Transaction Pooler (6543 端口)** 地址，更适合 serverless：
+```
+postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
+```
+在 Supabase 控制台 → Connect → Transaction 模式 复制。
 
 **必填环境变量：**
 
 | 变量 | 说明 |
 |------|------|
-| `DATABASE_URL` | PostgreSQL 连接串 |
+| `DATABASE_URL` | Supabase/PostgreSQL 连接串（推荐 6543 pooler） |
 | `NEXTAUTH_SECRET` | 随机字符串（如 `openssl rand -base64 32`） |
-| `NEXTAUTH_URL` | 部署后的完整 URL |
+| `NEXTAUTH_URL` | 部署后的完整 URL（如 https://zju-website-xxx.run.app） |
 | `ADMIN_USERNAME` | 管理员用户名 |
 | `ADMIN_PASSWORD` | 管理员密码 |
 
@@ -114,7 +124,7 @@ DATABASE_URL="postgresql://postgres:密码@db.xxx.supabase.co:5432/postgres" npx
 ## 故障排查
 
 - **build step 0 failed**：在项目根目录执行 `gcloud builds submit`；或使用 `gcloud builds submit --config=cloudbuild.yaml`
-- **PrismaClientInitializationError**：连不上数据库。检查 `DATABASE_URL` 是否正确；可尝试在末尾加 `?connect_timeout=30`
+- **找不到数据库 / PrismaClientInitializationError**：① 确认 Cloud Run 已设置 `DATABASE_URL`；② 若用 Supabase，使用 Transaction Pooler (6543) 地址；③ 可尝试在 URL 末尾加 `?connect_timeout=30`
 - **Table "xxx" not found**：未执行 `npx prisma db push`，需先同步表结构
 - **数据库连接失败**：检查 `DATABASE_URL`、Cloud SQL 连接配置、VPC/防火墙
 - **NEXTAUTH 回调错误**：确保 `NEXTAUTH_URL` 与部署 URL 完全一致
