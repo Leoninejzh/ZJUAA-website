@@ -17,10 +17,12 @@ export const authOptions = {
         const inputPass = (credentials?.password ?? "").trim();
         if (!inputPass) return null;
 
-        // 恢复模式：强制使用默认 admin/admin123 登录，便于改密
+        // 恢复模式：使用环境变量登录，便于改密
         if (process.env.ADMIN_USE_DEFAULT === "1") {
-          if (inputUser === "admin" && inputPass === "admin123") {
-            return { id: "admin", name: "admin" };
+          const recoveryUser = (process.env.ADMIN_USERNAME ?? "admin").trim();
+          const recoveryPass = (process.env.ADMIN_PASSWORD ?? "admin123").trim();
+          if (inputUser === recoveryUser && inputPass === recoveryPass) {
+            return { id: "admin", name: recoveryUser };
           }
           return null;
         }
@@ -48,8 +50,8 @@ export const authOptions = {
           } catch {}
         }
 
-        username = username || "admin";
-        if (!passwordHash && !plainPassword) plainPassword = "admin123";
+        username = username || (process.env.ADMIN_USERNAME ?? "admin").trim() || "admin";
+        if (!passwordHash && !plainPassword) plainPassword = (process.env.ADMIN_PASSWORD ?? "admin123").trim() || "admin123";
 
         if (inputUser !== username) return null;
 
