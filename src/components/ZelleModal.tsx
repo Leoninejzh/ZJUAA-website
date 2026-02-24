@@ -3,7 +3,6 @@
 import { X, Copy, Check } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
-import { useSettings } from "./SettingsProvider";
 import { PAYMENT_CONFIG } from "@/lib/payment-config";
 
 interface ZelleModalProps {
@@ -12,13 +11,8 @@ interface ZelleModalProps {
 }
 
 export default function ZelleModal({ isOpen, onClose }: ZelleModalProps) {
-  const { settings } = useSettings();
-  const zelleEmail = settings.zelleEmail?.trim() || PAYMENT_CONFIG.zelle.email;
-  const zelleQrImageUrl = settings.zelleQrImageUrl?.trim() || PAYMENT_CONFIG.zelle.qrImage;
-  const qrSrc = zelleQrImageUrl
-    ? zelleQrImageUrl
-    : "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" +
-      encodeURIComponent(zelleEmail);
+  const zelleEmail = PAYMENT_CONFIG.zelle.email;
+  const qrSrc = PAYMENT_CONFIG.zelle.qrImage;
 
   const [copied, setCopied] = useState(false);
 

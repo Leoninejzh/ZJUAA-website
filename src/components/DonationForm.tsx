@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronRight, ChevronLeft, DollarSign, User, CreditCard, ExternalLink } from "lucide-react";
 import { donationSchema, type DonationFormData } from "@/lib/donation-schema";
-import { useSettings } from "./SettingsProvider";
 import { PAYMENT_CONFIG } from "@/lib/payment-config";
 
 const QUICK_AMOUNTS = [50, 100, 500];
@@ -17,17 +16,8 @@ interface DonationFormProps {
 }
 
 export default function DonationForm({ onZelleClick, onSuccess }: DonationFormProps) {
-  const { settings, refresh } = useSettings();
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
-  const zeffyUrl = settings.zeffyDonationUrl?.trim() || PAYMENT_CONFIG.zeffy.url;
-  const zeffyQrImageUrl = settings.zeffyQrImageUrl?.trim() || PAYMENT_CONFIG.zeffy.qrImage;
-  const zeffyQrSrc = zeffyQrImageUrl
-    ? zeffyQrImageUrl
-    : zeffyUrl
-      ? "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(zeffyUrl)
-      : PAYMENT_CONFIG.zeffy.qrImage;
+  const zeffyUrl = PAYMENT_CONFIG.zeffy.url;
+  const zeffyQrSrc = PAYMENT_CONFIG.zeffy.qrImage;
   const [step, setStep] = useState(1);
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [isCustomAmount, setIsCustomAmount] = useState(false);
