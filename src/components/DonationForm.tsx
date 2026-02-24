@@ -7,13 +7,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronRight, ChevronLeft, DollarSign, User, CreditCard, ExternalLink } from "lucide-react";
 import { donationSchema, type DonationFormData } from "@/lib/donation-schema";
 import { useSettings } from "./SettingsProvider";
+import { PAYMENT_CONFIG } from "@/lib/payment-config";
 
 const QUICK_AMOUNTS = [50, 100, 500];
-
-const ZEFFY_CONFIG = {
-  donationUrl: "https://www.zeffy.com/en-US/donation-form/2026-zju-alumni-club-of-new-york",
-  qrImageUrl: "/assets/zeffy-qr.png",
-};
 
 interface DonationFormProps {
   onZelleClick: () => void;
@@ -25,13 +21,13 @@ export default function DonationForm({ onZelleClick, onSuccess }: DonationFormPr
   useEffect(() => {
     refresh();
   }, [refresh]);
-  const zeffyUrl = settings.zeffyDonationUrl?.trim() || ZEFFY_CONFIG.donationUrl;
-  const zeffyQrImageUrl = settings.zeffyQrImageUrl?.trim() || ZEFFY_CONFIG.qrImageUrl;
+  const zeffyUrl = settings.zeffyDonationUrl?.trim() || PAYMENT_CONFIG.zeffy.url;
+  const zeffyQrImageUrl = settings.zeffyQrImageUrl?.trim() || PAYMENT_CONFIG.zeffy.qrImage;
   const zeffyQrSrc = zeffyQrImageUrl
     ? zeffyQrImageUrl
     : zeffyUrl
       ? "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(zeffyUrl)
-      : ZEFFY_CONFIG.qrImageUrl;
+      : PAYMENT_CONFIG.zeffy.qrImage;
   const [step, setStep] = useState(1);
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [isCustomAmount, setIsCustomAmount] = useState(false);
