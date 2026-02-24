@@ -27,7 +27,7 @@ export default function DonationPage() {
           <div className="absolute inset-0">
             <Image
               src={settings.heroImageUrl}
-              alt="浙江大学校园"
+              alt=""
               fill
               className="object-cover"
               priority
