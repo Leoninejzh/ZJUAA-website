@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import { Heart, Shield, Users, Building2 } from "lucide-react";
 import DonationForm from "./DonationForm";
 import ZelleModal from "./ZelleModal";
@@ -24,17 +23,12 @@ export default function DonationPage() {
         <SiteNav />
         {/* Hero Section */}
         <section className="relative h-[280px] sm:h-[360px] overflow-hidden">
-          <div className="absolute inset-0">
-            <Image
-              src={settings.heroImageUrl}
-              alt=""
-              fill
-              className="object-cover"
-              priority
-              sizes="100vw"
-            />
-            <div className="absolute inset-0 bg-zju-blue/75" />
-          </div>
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${settings.heroImageUrl})` }}
+            aria-hidden
+          />
+          <div className="absolute inset-0 bg-zju-blue/75" />
           <div className="relative h-full flex flex-col items-center justify-center px-4 text-center">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white drop-shadow-lg">
               {settings.heroTitle}
