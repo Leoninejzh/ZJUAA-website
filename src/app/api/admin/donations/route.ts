@@ -5,17 +5,7 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-export async function DELETE(request: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: "未授权" }, { status: 401 });
-  }
-
-  const id = request.nextUrl.searchParams.get("id");
-  if (!id) {
-    return NextResponse.json({ error: "缺少 id 参数" }, { status: 400 });
-  }
-
+async function deleteDonationById(id: string) {
   const dbUrl = process.env.DATABASE_URL;
   const skipDb =
     process.env.SKIP_DATABASE === "1" ||
@@ -33,6 +23,38 @@ export async function DELETE(request: NextRequest) {
     console.error("[Admin Donations Delete]", error);
     return NextResponse.json({ error: "删除失败" }, { status: 500 });
   }
+}
+
+export async function DELETE(request: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ error: "未授权" }, { status: 401 });
+  }
+  const id = request.nextUrl.searchParams.get("id");
+  if (!id) {
+    return NextResponse.json({ error: "缺少 id 参数" }, { status: 400 });
+  }
+  return deleteDonationById(id);
+}
+
+export async function POST(request: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    return NextResponse.json({ error: "未授权" }, { status: 401 });
+  }
+  let id: string | null = null;
+  try {
+    const body = await request.json();
+    if (body?.action === "delete") {
+      id = (body?.id ?? body?.donationId) as string;
+    }
+  } catch {
+    // ignore
+  }
+  if (!id) {
+    return NextResponse.json({ error: "缺少 id 参数" }, { status: 400 });
+  }
+  return deleteDonationById(id);
 }
 
 export async function GET() {

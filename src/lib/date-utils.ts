@@ -1,28 +1,24 @@
 /**
- * 将 API 返回的日期字符串格式化为显示，使用 UTC 日期避免时区偏移。
- * 编辑时选择 2月28日，存储为 2026-02-28，显示也应为 2026年2月28日。
+ * 从 ISO 字符串提取 YYYY-MM-DD 并格式化，完全避免时区转换。
+ * 编辑时选择 2月28日 → 存储 2026-02-28 → 显示 2026年2月28日
  */
+function parseDatePart(dateStr: string): { y: number; m: number; d: number } | null {
+  const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) return null;
+  return { y: Number(match[1]), m: Number(match[2]), d: Number(match[3]) };
+}
+
 export function formatEventDate(dateStr: string | null): string {
   if (!dateStr) return "";
-  const date = new Date(dateStr);
-  if (isNaN(date.getTime())) return dateStr;
-  const y = date.getUTCFullYear();
-  const m = date.getUTCMonth();
-  const d = date.getUTCDate();
-  return new Date(y, m, d).toLocaleDateString("zh-CN", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const p = parseDatePart(dateStr);
+  if (!p) return dateStr;
+  return `${p.y}年${p.m}月${p.d}日`;
 }
 
 /** 短格式：2025/3/15 */
 export function formatEventDateShort(dateStr: string | null): string {
   if (!dateStr) return "";
-  const date = new Date(dateStr);
-  if (isNaN(date.getTime())) return dateStr;
-  const y = date.getUTCFullYear();
-  const m = date.getUTCMonth();
-  const d = date.getUTCDate();
-  return new Date(y, m, d).toLocaleDateString("zh-CN");
+  const p = parseDatePart(dateStr);
+  if (!p) return dateStr;
+  return `${p.y}/${p.m}/${p.d}`;
 }

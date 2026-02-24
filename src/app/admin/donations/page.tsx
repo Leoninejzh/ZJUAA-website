@@ -36,9 +36,11 @@ export default function AdminDonationsPage() {
     if (!confirm("确定要删除这条捐赠记录吗？此操作不可恢复。")) return;
     setDeletingId(id);
     try {
-      const res = await fetch(`/api/admin/donations?id=${encodeURIComponent(id)}`, {
-        method: "DELETE",
+      const res = await fetch("/api/admin/donations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         credentials: "include",
+        body: JSON.stringify({ action: "delete", id }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
