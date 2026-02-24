@@ -1,14 +1,15 @@
 /**
- * 将 API 返回的日期字符串格式化为本地日期显示，避免时区导致日期偏移。
- * 例如：编辑时选择 2025-03-15，网页显示也应为 2025年3月15日。
+ * 将 API 返回的日期字符串格式化为显示，使用 UTC 日期避免时区偏移。
+ * 编辑时选择 2月28日，存储为 2026-02-28，显示也应为 2026年2月28日。
  */
 export function formatEventDate(dateStr: string | null): string {
   if (!dateStr) return "";
-  const match = dateStr.slice(0, 10).match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (!match) return dateStr;
-  const [, y, m, d] = match;
-  const date = new Date(Number(y), Number(m) - 1, Number(d));
-  return date.toLocaleDateString("zh-CN", {
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return dateStr;
+  const y = date.getUTCFullYear();
+  const m = date.getUTCMonth();
+  const d = date.getUTCDate();
+  return new Date(y, m, d).toLocaleDateString("zh-CN", {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -18,9 +19,10 @@ export function formatEventDate(dateStr: string | null): string {
 /** 短格式：2025/3/15 */
 export function formatEventDateShort(dateStr: string | null): string {
   if (!dateStr) return "";
-  const match = dateStr.slice(0, 10).match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (!match) return dateStr;
-  const [, y, m, d] = match;
-  const date = new Date(Number(y), Number(m) - 1, Number(d));
-  return date.toLocaleDateString("zh-CN");
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return dateStr;
+  const y = date.getUTCFullYear();
+  const m = date.getUTCMonth();
+  const d = date.getUTCDate();
+  return new Date(y, m, d).toLocaleDateString("zh-CN");
 }

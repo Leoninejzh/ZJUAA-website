@@ -60,7 +60,7 @@ export async function PUT(
         ...(coverImageUrl !== undefined && { coverImageUrl }),
         ...(type !== undefined && { type }),
         ...(eventDate !== undefined && {
-          eventDate: eventDate ? new Date(eventDate) : null,
+          eventDate: eventDate ? new Date(eventDate + "T12:00:00.000Z") : null,
         }),
         ...(sortOrder !== undefined && { sortOrder }),
       },

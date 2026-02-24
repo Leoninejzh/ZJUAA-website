@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
         content: content || "",
         coverImageUrl: coverImageUrl || null,
         type: type || "past",
-        eventDate: eventDate ? new Date(eventDate) : null,
+        eventDate: eventDate ? new Date(eventDate + "T12:00:00.000Z") : null,
         sortOrder: sortOrder ?? 0,
       },
     });

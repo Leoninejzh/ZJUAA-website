@@ -36,11 +36,17 @@ export default function AdminDonationsPage() {
     if (!confirm("确定要删除这条捐赠记录吗？此操作不可恢复。")) return;
     setDeletingId(id);
     try {
-      const res = await fetch(`/api/admin/donations/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("删除失败");
+      const res = await fetch(`/api/admin/donations?id=${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error((data as { error?: string }).error || `删除失败 (${res.status})`);
+      }
       setDonations((prev) => prev.filter((d) => d.id !== id));
-    } catch {
-      alert("删除失败，请重试");
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "删除失败，请重试");
     } finally {
       setDeletingId(null);
     }
