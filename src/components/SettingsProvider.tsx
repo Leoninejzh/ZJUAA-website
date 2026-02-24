@@ -71,7 +71,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 
   const refresh = useCallback(async () => {
     try {
-      const res = await fetch("/api/settings");
+      const res = await fetch("/api/settings", { cache: "no-store", credentials: "include" });
       if (!res.ok) return;
       const data = await res.json();
       if (data && typeof data === "object") {

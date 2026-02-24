@@ -7,8 +7,10 @@ export async function GET() {
     process.env.SKIP_DATABASE === "1" ||
     !dbUrl ||
     (process.env.VERCEL && dbUrl.startsWith("file:"));
+  const noCache = { "Cache-Control": "no-store, no-cache, must-revalidate" };
+
   if (skipDb) {
-    return NextResponse.json(DEFAULT_SITE_SETTINGS);
+    return NextResponse.json(DEFAULT_SITE_SETTINGS, { headers: noCache });
   }
   try {
     const { prisma } = await import("@/lib/prisma");
@@ -30,9 +32,9 @@ export async function GET() {
       merged.transparencyItems = DEFAULT_SITE_SETTINGS.transparencyItems;
     }
 
-    return NextResponse.json(merged);
+    return NextResponse.json(merged, { headers: noCache });
   } catch (error) {
     console.error("[Settings API]", error);
-    return NextResponse.json(DEFAULT_SITE_SETTINGS);
+    return NextResponse.json(DEFAULT_SITE_SETTINGS, { headers: noCache });
   }
 }

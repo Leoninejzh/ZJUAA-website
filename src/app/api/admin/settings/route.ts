@@ -16,8 +16,9 @@ export async function GET() {
   }
 
   const merged = { ...DEFAULT_SITE_SETTINGS } as Record<string, unknown>;
+  const noCache = { "Cache-Control": "no-store, no-cache, must-revalidate" };
 
-  if (getSkipDb()) return NextResponse.json(merged);
+  if (getSkipDb()) return NextResponse.json(merged, { headers: noCache });
 
   try {
     const rows = await prisma.siteSettings.findMany();
@@ -28,7 +29,7 @@ export async function GET() {
         merged[row.key] = row.value;
       }
     }
-    return NextResponse.json(merged);
+    return NextResponse.json(merged, { headers: noCache });
   } catch (error) {
     console.error("[Admin Settings]", error);
     return NextResponse.json({ error: "获取失败" }, { status: 500 });

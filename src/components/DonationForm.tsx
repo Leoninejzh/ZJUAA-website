@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,7 +16,10 @@ interface DonationFormProps {
 }
 
 export default function DonationForm({ onZelleClick, onSuccess }: DonationFormProps) {
-  const { settings } = useSettings();
+  const { settings, refresh } = useSettings();
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
   const zeffyUrl = settings.zeffyDonationUrl?.trim() || "";
   const zeffyQrImageUrl = settings.zeffyQrImageUrl?.trim();
   const zeffyQrSrc = zeffyQrImageUrl
@@ -313,15 +316,17 @@ export default function DonationForm({ onZelleClick, onSuccess }: DonationFormPr
             <div className="space-y-4 pt-2">
               {zeffyUrl ? (
                 <>
-                  <a
-                    href={zeffyUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const url = zeffyUrl.startsWith("http") ? zeffyUrl : `https://${zeffyUrl}`;
+                      window.open(url, "_blank", "noopener,noreferrer");
+                    }}
                     className="w-full py-3 px-4 bg-zju-blue text-white rounded-xl font-semibold hover:bg-zju-blue-600 transition-colors flex items-center justify-center gap-2"
                   >
                     <ExternalLink className="w-5 h-5" />
                     前往 Zeffy 捐赠
-                  </a>
+                  </button>
                   {zeffyQrSrc && (
                     <div className="flex flex-col items-center gap-2">
                       <span className="text-sm text-gray-500">或扫描下方二维码</span>

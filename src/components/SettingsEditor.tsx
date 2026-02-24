@@ -37,7 +37,7 @@ export default function SettingsEditor() {
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
-    fetch("/api/admin/settings")
+    fetch("/api/admin/settings", { cache: "no-store", credentials: "include" })
       .then((res) => res.json())
       .then((data) => setSettings(data))
       .catch(() => setMessage({ type: "error", text: "加载失败" }))
@@ -70,7 +70,7 @@ export default function SettingsEditor() {
         const msg = (data as { error?: string }).error || `保存失败 (${res.status})`;
         throw new Error(msg);
       }
-      setMessage({ type: "success", text: "保存成功！" });
+      setMessage({ type: "success", text: "保存成功！刷新捐赠页面即可看到更新。" });
       router.refresh();
     } catch (err) {
       setMessage({
