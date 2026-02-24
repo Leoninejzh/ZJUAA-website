@@ -20,6 +20,8 @@ export type SiteSettings = {
   transparencyItems: string[];
   zelleEmail: string;
   zelleQrImageUrl: string;
+  zeffyDonationUrl: string;
+  zeffyQrImageUrl: string;
   navBrand: string;
   siteTitle: string;
   siteDescription: string;
@@ -44,6 +46,8 @@ const defaultSettings: SiteSettings = {
   ],
   zelleEmail: "donation@zjualumni.org",
   zelleQrImageUrl: "",
+  zeffyDonationUrl: "",
+  zeffyQrImageUrl: "",
   navBrand: "浙大大纽约校友会",
   siteTitle: "捐赠 Donation | 浙大大纽约校友会",
   siteDescription:

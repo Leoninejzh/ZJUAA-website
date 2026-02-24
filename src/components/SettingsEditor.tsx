@@ -21,7 +21,9 @@ const FIELDS: {
   { key: "transparencyIntro", label: "资金透明度引言", type: "text" },
   { key: "transparencyItems", label: "资金用途列表（每行一项）", type: "array" },
   { key: "zelleEmail", label: "Zelle 收款邮箱", type: "text" },
-  { key: "zelleQrImageUrl", label: "捐赠二维码图片 URL（留空则自动生成；可上传图片后填入 /uploads/xxx.jpg）", type: "text", placeholder: "/uploads/或完整图片链接" },
+  { key: "zelleQrImageUrl", label: "Zelle 二维码图片 URL（留空则自动生成）", type: "text", placeholder: "/uploads/或完整图片链接" },
+  { key: "zeffyDonationUrl", label: "Zeffy 捐赠页面链接", type: "text", placeholder: "https://www.zeffy.com/..." },
+  { key: "zeffyQrImageUrl", label: "Zeffy 二维码图片 URL（留空则根据链接自动生成）", type: "text", placeholder: "/uploads/或完整图片链接" },
   { key: "navBrand", label: "导航栏品牌名", type: "text" },
   { key: "siteTitle", label: "网站标题 (SEO)", type: "text" },
   { key: "siteDescription", label: "网站描述 (SEO)", type: "textarea" },
@@ -50,16 +52,31 @@ export default function SettingsEditor() {
     setSaving(true);
     setMessage(null);
     try {
+      const payload = FIELDS.reduce(
+        (acc, { key, type }) => {
+          const val = settings[key];
+          acc[key] = val === undefined ? (type === "array" ? [] : "") : val;
+          return acc;
+        },
+        {} as Record<string, string | string[]>
+      );
       const res = await fetch("/api/admin/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(settings),
+        body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error("保存失败");
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = (data as { error?: string }).error || `保存失败 (${res.status})`;
+        throw new Error(msg);
+      }
       setMessage({ type: "success", text: "保存成功！" });
       router.refresh();
-    } catch {
-      setMessage({ type: "error", text: "保存失败，请重试" });
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: err instanceof Error ? err.message : "保存失败，请重试",
+      });
     } finally {
       setSaving(false);
     }

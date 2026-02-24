@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronRight, ChevronLeft, DollarSign, User, CreditCard } from "lucide-react";
+import { ChevronRight, ChevronLeft, DollarSign, User, CreditCard, ExternalLink } from "lucide-react";
 import { donationSchema, type DonationFormData } from "@/lib/donation-schema";
+import { useSettings } from "./SettingsProvider";
 
 const QUICK_AMOUNTS = [50, 100, 500];
 
@@ -14,10 +16,19 @@ interface DonationFormProps {
 }
 
 export default function DonationForm({ onZelleClick, onSuccess }: DonationFormProps) {
+  const { settings } = useSettings();
+  const zeffyUrl = settings.zeffyDonationUrl?.trim() || "";
+  const zeffyQrImageUrl = settings.zeffyQrImageUrl?.trim();
+  const zeffyQrSrc = zeffyQrImageUrl
+    ? zeffyQrImageUrl
+    : zeffyUrl
+      ? "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(zeffyUrl)
+      : "";
   const [step, setStep] = useState(1);
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [isCustomAmount, setIsCustomAmount] = useState(false);
   const [customAmountInput, setCustomAmountInput] = useState("");
+  const [stepError, setStepError] = useState("");
 
   const {
     register,
@@ -53,11 +64,13 @@ export default function DonationForm({ onZelleClick, onSuccess }: DonationFormPr
   };
 
   const nextStep = async () => {
+    setStepError("");
     if (step === 1) {
       const amount = isCustomAmount
         ? parseFloat(customAmountInput)
         : selectedAmount;
       if (!amount || amount < 1) {
+        setStepError("请先选择或输入捐赠金额");
         return;
       }
       setValue("amount", amount);
@@ -90,7 +103,11 @@ export default function DonationForm({ onZelleClick, onSuccess }: DonationFormPr
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-6"
+      noValidate
+    >
       {/* Step Indicator */}
       <div className="flex items-center justify-between text-sm">
         {[1, 2, 3].map((s) => (
@@ -119,31 +136,38 @@ export default function DonationForm({ onZelleClick, onSuccess }: DonationFormPr
           </h3>
           <div className="grid grid-cols-3 gap-3">
             {QUICK_AMOUNTS.map((amt) => (
-              <button
+              <div
                 key={amt}
-                type="button"
+                role="button"
+                tabIndex={0}
                 onClick={() => handleAmountSelect(amt)}
-                className={`py-3 px-4 rounded-xl font-semibold transition-all ${
+                onKeyDown={(e) => e.key === "Enter" && handleAmountSelect(amt)}
+                className={`py-3 px-4 rounded-xl font-semibold transition-all text-center cursor-pointer select-none ${
                   selectedAmount === amt
                     ? "bg-zju-blue text-white ring-2 ring-zju-blue ring-offset-2"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
                 ${amt}
-              </button>
+              </div>
             ))}
           </div>
-          <button
-            type="button"
+          <div
+            role="button"
+            tabIndex={0}
             onClick={handleCustomAmount}
-            className={`w-full py-3 px-4 rounded-xl font-semibold transition-all ${
+            onKeyDown={(e) => e.key === "Enter" && handleCustomAmount()}
+            className={`w-full py-3 px-4 rounded-xl font-semibold transition-all text-center cursor-pointer select-none ${
               isCustomAmount
                 ? "bg-zju-blue text-white ring-2 ring-zju-blue ring-offset-2"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
           >
             自定义金额
-          </button>
+          </div>
+          {stepError && (
+            <p className="text-sm text-red-600">{stepError}</p>
+          )}
           {isCustomAmount && (
             <div className="mt-2">
               <input
@@ -258,6 +282,16 @@ export default function DonationForm({ onZelleClick, onSuccess }: DonationFormPr
             <label className="flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer hover:bg-gray-50 has-[input:checked]:border-zju-blue has-[input:checked]:bg-zju-blue/5">
               <input
                 type="radio"
+                value="zeffy"
+                {...register("paymentMethod")}
+                className="w-4 h-4 text-zju-blue"
+              />
+              <span className="font-medium">Zeffy 在线捐赠</span>
+              <span className="text-sm text-gray-500">点击跳转 Zeffy 页面完成捐赠</span>
+            </label>
+            <label className="flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer hover:bg-gray-50 has-[input:checked]:border-zju-blue has-[input:checked]:bg-zju-blue/5">
+              <input
+                type="radio"
                 value="card"
                 {...register("paymentMethod")}
                 className="w-4 h-4 text-zju-blue"
@@ -275,6 +309,40 @@ export default function DonationForm({ onZelleClick, onSuccess }: DonationFormPr
               查看 Zelle 收款信息
             </button>
           )}
+          {paymentMethod === "zeffy" && (
+            <div className="space-y-4 pt-2">
+              {zeffyUrl ? (
+                <>
+                  <a
+                    href={zeffyUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-3 px-4 bg-zju-blue text-white rounded-xl font-semibold hover:bg-zju-blue-600 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <ExternalLink className="w-5 h-5" />
+                    前往 Zeffy 捐赠
+                  </a>
+                  {zeffyQrSrc && (
+                    <div className="flex flex-col items-center gap-2">
+                      <span className="text-sm text-gray-500">或扫描下方二维码</span>
+                      <div className="relative w-40 h-40 bg-gray-100 rounded-xl overflow-hidden">
+                        <Image
+                          src={zeffyQrSrc}
+                          alt="Zeffy 捐赠二维码"
+                          fill
+                          className="object-contain p-2"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p className="text-sm text-amber-600 py-2">
+                  请管理员在后台「网站设置」中配置 Zeffy 捐赠链接。
+                </p>
+              )}
+            </div>
+          )}
           {paymentMethod === "card" && (
             <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-sm">
               信用卡/PayPal 支付功能即将上线，敬请期待。您可先选择 Zelle 完成捐赠。
@@ -288,7 +356,10 @@ export default function DonationForm({ onZelleClick, onSuccess }: DonationFormPr
         {step > 1 ? (
           <button
             type="button"
-            onClick={prevStep}
+            onClick={(e) => {
+              e.preventDefault();
+              prevStep();
+            }}
             className="flex-1 py-3 px-4 border border-gray-300 rounded-xl font-medium text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-2"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -300,12 +371,18 @@ export default function DonationForm({ onZelleClick, onSuccess }: DonationFormPr
         {step < 3 ? (
           <button
             type="button"
-            onClick={nextStep}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              nextStep();
+            }}
             className="flex-1 py-3 px-4 bg-zju-blue text-white rounded-xl font-semibold hover:bg-zju-blue-600 flex items-center justify-center gap-2"
           >
             下一步
             <ChevronRight className="w-4 h-4" />
           </button>
+        ) : paymentMethod === "zeffy" ? (
+          <div className="flex-1" />
         ) : (
           <button
             type="submit"

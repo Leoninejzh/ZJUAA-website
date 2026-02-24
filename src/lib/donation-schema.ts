@@ -11,7 +11,7 @@ export const donationSchema = z.object({
     .regex(/^\d{4}$/, "入学年份应为4位数字"),
   major: z.string().min(2, "请输入专业名称"),
   message: z.string().optional(),
-  paymentMethod: z.enum(["zelle", "card"], {
+  paymentMethod: z.enum(["zelle", "card", "zeffy"], {
     required_error: "请选择支付方式",
   }),
 });

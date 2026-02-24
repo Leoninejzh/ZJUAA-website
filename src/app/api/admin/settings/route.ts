@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { DEFAULT_SITE_SETTINGS } from "@/lib/default-settings";
 
 const getSkipDb = () =>
   process.env.SKIP_DATABASE === "1" ||
@@ -14,19 +15,20 @@ export async function GET() {
     return NextResponse.json({ error: "未授权" }, { status: 401 });
   }
 
-  if (getSkipDb()) return NextResponse.json({});
+  const merged = { ...DEFAULT_SITE_SETTINGS } as Record<string, unknown>;
+
+  if (getSkipDb()) return NextResponse.json(merged);
 
   try {
     const rows = await prisma.siteSettings.findMany();
-    const settings: Record<string, unknown> = {};
     for (const row of rows) {
       try {
-        settings[row.key] = JSON.parse(row.value);
+        merged[row.key] = JSON.parse(row.value);
       } catch {
-        settings[row.key] = row.value;
+        merged[row.key] = row.value;
       }
     }
-    return NextResponse.json(settings);
+    return NextResponse.json(merged);
   } catch (error) {
     console.error("[Admin Settings]", error);
     return NextResponse.json({ error: "获取失败" }, { status: 500 });
@@ -40,15 +42,27 @@ export async function PUT(request: NextRequest) {
   }
 
   if (getSkipDb()) {
-    return NextResponse.json({ error: "当前无数据库" }, { status: 400 });
+    return NextResponse.json(
+      {
+        error:
+          "当前无数据库。请在 .env.local 中配置 DATABASE_URL。本地开发可用 SQLite：file:./prisma/dev.db",
+      },
+      { status: 400 }
+    );
   }
 
   try {
-    const body = await request.json();
+    const body = (await request.json()) as Record<string, unknown>;
+    const validKeys = new Set(Object.keys(DEFAULT_SITE_SETTINGS));
 
     for (const [key, value] of Object.entries(body)) {
+      if (!validKeys.has(key)) continue;
       const valueStr =
-        typeof value === "object" ? JSON.stringify(value) : String(value);
+        value === undefined || value === null
+          ? ""
+          : typeof value === "object"
+            ? JSON.stringify(value)
+            : String(value);
 
       await prisma.siteSettings.upsert({
         where: { key },
@@ -60,6 +74,11 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("[Admin Settings]", error);
-    return NextResponse.json({ error: "保存失败" }, { status: 500 });
+    const msg =
+      error instanceof Error ? error.message : "数据库连接或写入失败";
+    return NextResponse.json(
+      { error: `保存失败: ${msg}` },
+      { status: 500 }
+    );
   }
 }

@@ -86,7 +86,7 @@ export default function DonationPage() {
 
             {/* Right Column - Donation Card */}
             <div className="lg:col-span-3">
-              <div className="bg-white rounded-2xl shadow-xl border-2 border-zju-blue/20 p-6 sm:p-8 lg:p-10 lg:sticky lg:top-24">
+              <div className="bg-white rounded-2xl shadow-xl border-2 border-zju-blue/20 p-6 sm:p-8 lg:p-10 relative z-10">
                 <DonationForm
                   onZelleClick={() => setShowZelleModal(true)}
                   onSuccess={() => setShowSuccessModal(true)}

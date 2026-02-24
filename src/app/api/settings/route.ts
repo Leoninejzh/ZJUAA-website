@@ -18,13 +18,16 @@ export async function GET() {
       settings[row.key] = row.value;
     }
 
-    const merged = { ...DEFAULT_SITE_SETTINGS };
+    const merged = { ...DEFAULT_SITE_SETTINGS } as Record<string, unknown>;
     for (const [key, value] of Object.entries(settings)) {
       try {
-        (merged as Record<string, unknown>)[key] = JSON.parse(value);
+        merged[key] = JSON.parse(value);
       } catch {
-        (merged as Record<string, unknown>)[key] = value;
+        merged[key] = value;
       }
+    }
+    if (!Array.isArray(merged.transparencyItems)) {
+      merged.transparencyItems = DEFAULT_SITE_SETTINGS.transparencyItems;
     }
 
     return NextResponse.json(merged);
