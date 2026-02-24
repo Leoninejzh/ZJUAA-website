@@ -10,6 +10,11 @@ import { useSettings } from "./SettingsProvider";
 
 const QUICK_AMOUNTS = [50, 100, 500];
 
+const ZEFFY_CONFIG = {
+  donationUrl: "https://www.zeffy.com/en-US/donation-form/2026-zju-alumni-club-of-new-york",
+  qrImageUrl: "/assets/zeffy-qr.png",
+};
+
 interface DonationFormProps {
   onZelleClick: () => void;
   onSuccess: () => void;
@@ -20,13 +25,13 @@ export default function DonationForm({ onZelleClick, onSuccess }: DonationFormPr
   useEffect(() => {
     refresh();
   }, [refresh]);
-  const zeffyUrl = settings.zeffyDonationUrl?.trim() || "";
-  const zeffyQrImageUrl = settings.zeffyQrImageUrl?.trim();
+  const zeffyUrl = settings.zeffyDonationUrl?.trim() || ZEFFY_CONFIG.donationUrl;
+  const zeffyQrImageUrl = settings.zeffyQrImageUrl?.trim() || ZEFFY_CONFIG.qrImageUrl;
   const zeffyQrSrc = zeffyQrImageUrl
     ? zeffyQrImageUrl
     : zeffyUrl
       ? "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(zeffyUrl)
-      : "";
+      : ZEFFY_CONFIG.qrImageUrl;
   const [step, setStep] = useState(1);
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [isCustomAmount, setIsCustomAmount] = useState(false);
@@ -314,36 +319,33 @@ export default function DonationForm({ onZelleClick, onSuccess }: DonationFormPr
           )}
           {paymentMethod === "zeffy" && (
             <div className="space-y-4 pt-2">
-              {zeffyUrl ? (
-                <>
-                  <a
-                    href={zeffyUrl.startsWith("http") ? zeffyUrl : `https://${zeffyUrl}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full py-3 px-4 bg-zju-blue text-white rounded-xl font-semibold hover:bg-zju-blue-600 transition-colors flex items-center justify-center gap-2 text-center no-underline"
-                  >
-                    <ExternalLink className="w-5 h-5" />
-                    前往 Zeffy 捐赠
-                  </a>
-                  {zeffyQrSrc && (
-                    <div className="flex flex-col items-center gap-2">
-                      <span className="text-sm text-gray-500">或扫描下方二维码</span>
-                      <div className="relative w-40 h-40 bg-gray-100 rounded-xl overflow-hidden">
-                        <Image
-                          src={zeffyQrSrc}
-                          alt="Zeffy 捐赠二维码"
-                          fill
-                          className="object-contain p-2"
-                        />
-                      </div>
+              <p className="text-sm text-gray-600 text-center">
+                点击下方按钮跳转至 Zeffy 页面完成捐赠
+              </p>
+              <div className="flex flex-col items-center gap-4">
+                {zeffyQrSrc && (
+                  <div className="flex flex-col items-center gap-2">
+                    <span className="text-sm text-gray-500">或扫描下方二维码</span>
+                    <div className="relative w-48 h-48 bg-gray-100 rounded-xl overflow-hidden">
+                      <Image
+                        src={zeffyQrSrc}
+                        alt="Zeffy 捐赠二维码"
+                        fill
+                        className="object-contain p-2"
+                      />
                     </div>
-                  )}
-                </>
-              ) : (
-                <p className="text-sm text-amber-600 py-2">
-                  请管理员在后台「网站设置」中配置 Zeffy 捐赠链接。
-                </p>
-              )}
+                  </div>
+                )}
+                <a
+                  href={zeffyUrl.startsWith("http") ? zeffyUrl : `https://${zeffyUrl}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-3 px-4 bg-zju-blue text-white rounded-xl font-semibold hover:bg-zju-blue-600 transition-colors flex items-center justify-center gap-2 text-center no-underline"
+                >
+                  <ExternalLink className="w-5 h-5" />
+                  前往 Zeffy 在线捐赠
+                </a>
+              </div>
             </div>
           )}
           {paymentMethod === "card" && (
