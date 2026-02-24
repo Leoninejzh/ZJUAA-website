@@ -47,6 +47,16 @@ gcloud run deploy zju-donation \
 
 详见 [docs/CLOUD_RUN_DEPLOYMENT.md](docs/CLOUD_RUN_DEPLOYMENT.md)。
 
+## 静态图片（二维码等）
+
+容器重启后 `public/uploads/` 会清空。若要**永久显示**二维码：
+
+1. 将图片放入 `public/assets/` 文件夹
+2. 执行 `git add public/assets/xxx.png && git commit -m "add qr" && git push`
+3. 在管理后台「网站设置」中填写 `/assets/xxx.png`
+
+图片会随代码打包，部署后不会 404。
+
 ## 环境变量
 
 | 变量 | 必填 | 说明 |
