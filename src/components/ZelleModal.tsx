@@ -1,7 +1,7 @@
 "use client";
 
 import { X, Copy, Check } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { PAYMENT_CONFIG } from "@/lib/payment-config";
 
 interface ZelleModalProps {
@@ -12,14 +12,8 @@ interface ZelleModalProps {
 export default function ZelleModal({ isOpen, onClose }: ZelleModalProps) {
   const zelleEmail = PAYMENT_CONFIG.zelle.email;
   const qrImageUrl = PAYMENT_CONFIG.zelle.qrImage;
-  const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(zelleEmail)}`;
 
   const [copied, setCopied] = useState(false);
-  const [imgError, setImgError] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) setImgError(false);
-  }, [isOpen]);
 
   const copyToClipboard = async () => {
     await navigator.clipboard.writeText(zelleEmail);
@@ -51,10 +45,9 @@ export default function ZelleModal({ isOpen, onClose }: ZelleModalProps) {
         <div className="flex flex-col items-center gap-6">
           <div className="relative w-48 h-48 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center">
             <img
-              src={imgError ? qrApiUrl : qrImageUrl}
+              src={qrImageUrl}
               alt="捐赠二维码"
               className="w-full h-full object-contain p-2"
-              onError={() => setImgError(true)}
             />
           </div>
           <div className="w-full">
