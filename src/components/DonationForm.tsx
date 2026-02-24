@@ -316,17 +316,15 @@ export default function DonationForm({ onZelleClick, onSuccess }: DonationFormPr
             <div className="space-y-4 pt-2">
               {zeffyUrl ? (
                 <>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const url = zeffyUrl.startsWith("http") ? zeffyUrl : `https://${zeffyUrl}`;
-                      window.open(url, "_blank", "noopener,noreferrer");
-                    }}
-                    className="w-full py-3 px-4 bg-zju-blue text-white rounded-xl font-semibold hover:bg-zju-blue-600 transition-colors flex items-center justify-center gap-2"
+                  <a
+                    href={zeffyUrl.startsWith("http") ? zeffyUrl : `https://${zeffyUrl}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-3 px-4 bg-zju-blue text-white rounded-xl font-semibold hover:bg-zju-blue-600 transition-colors flex items-center justify-center gap-2 text-center no-underline"
                   >
                     <ExternalLink className="w-5 h-5" />
                     前往 Zeffy 捐赠
-                  </button>
+                  </a>
                   {zeffyQrSrc && (
                     <div className="flex flex-col items-center gap-2">
                       <span className="text-sm text-gray-500">或扫描下方二维码</span>
