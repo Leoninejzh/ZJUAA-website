@@ -15,7 +15,7 @@ export const DEFAULT_SITE_SETTINGS = {
     "网站及沟通平台等基础设施改进",
     "支持校友会日常运营的各类支出",
   ],
-  zelleEmail: "donation@zjualumni.org",
+  zelleEmail: "zjuacny@gmail.com",
   zelleQrImageUrl: "", // 留空则使用邮箱自动生成；填入图片 URL 则显示自定义二维码（如微信/支付宝）
   zeffyDonationUrl: "", // Zeffy 捐赠页面链接，管理员在后台配置
   zeffyQrImageUrl: "", // Zeffy 二维码图片 URL，留空则根据 zeffyDonationUrl 自动生成

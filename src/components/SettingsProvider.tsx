@@ -44,7 +44,7 @@ const defaultSettings: SiteSettings = {
     "网站及沟通平台等基础设施改进",
     "支持校友会日常运营的各类支出",
   ],
-  zelleEmail: "donation@zjualumni.org",
+  zelleEmail: "zjuacny@gmail.com",
   zelleQrImageUrl: "",
   zeffyDonationUrl: "",
   zeffyQrImageUrl: "",

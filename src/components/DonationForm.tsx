@@ -322,15 +322,19 @@ export default function DonationForm({ onZelleClick, onSuccess }: DonationFormPr
                     </div>
                   </div>
                 )}
-                <a
-                  href={zeffyUrl.startsWith("http") ? zeffyUrl : `https://${zeffyUrl}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-3 px-4 bg-zju-blue text-white rounded-xl font-semibold hover:bg-zju-blue-600 transition-colors flex items-center justify-center gap-2 text-center no-underline"
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const w = window.open(zeffyUrl, "_blank", "noopener,noreferrer");
+                    if (!w) window.location.href = zeffyUrl;
+                  }}
+                  className="w-full py-3 px-4 bg-zju-blue text-white rounded-xl font-semibold hover:bg-zju-blue-600 transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <ExternalLink className="w-5 h-5" />
                   前往 Zeffy 在线捐赠
-                </a>
+                </button>
               </div>
             </div>
           )}
