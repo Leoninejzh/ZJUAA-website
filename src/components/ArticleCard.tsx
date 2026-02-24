@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { formatEventDate } from "@/lib/date-utils";
 
 type Article = {
   id: string;
@@ -69,11 +70,7 @@ export default function ArticleCard({ article }: { article: Article }) {
         <h3 className="font-semibold text-gray-900 text-lg">{article.title}</h3>
         {article.eventDate && (
           <p className="text-sm text-zju-blue mt-1">
-            {new Date(article.eventDate).toLocaleDateString("zh-CN", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
+            {formatEventDate(article.eventDate)}
           </p>
         )}
         <div className="mt-3 space-y-2">{renderContent(article.content)}</div>

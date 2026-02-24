@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DollarSign, User, Mail, Calendar, BookOpen, MessageSquare } from "lucide-react";
+import { DollarSign, User, Mail, Calendar, BookOpen, MessageSquare, Trash2 } from "lucide-react";
 
 type Donation = {
   id: string;
@@ -19,6 +19,7 @@ export default function AdminDonationsPage() {
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/admin/donations")
@@ -30,6 +31,20 @@ export default function AdminDonationsPage() {
       .catch(() => setError("加载捐赠列表失败"))
       .finally(() => setLoading(false));
   }, []);
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("确定要删除这条捐赠记录吗？此操作不可恢复。")) return;
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/admin/donations/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("删除失败");
+      setDonations((prev) => prev.filter((d) => d.id !== id));
+    } catch {
+      alert("删除失败，请重试");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -81,9 +96,18 @@ export default function AdminDonationsPage() {
                     {new Date(d.createdAt).toLocaleString("zh-CN")}
                   </span>
                   <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100">
-                    {d.paymentMethod === "zelle" ? "Zelle" : "信用卡"}
+                    {d.paymentMethod === "zelle" ? "Zelle" : d.paymentMethod === "zeffy" ? "Zeffy" : "信用卡"}
                   </span>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(d.id)}
+                  disabled={deletingId === d.id}
+                  className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                  title="删除"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>
               <div className="mt-4 grid sm:grid-cols-2 gap-3 text-sm">
                 <div className="flex items-center gap-2 text-gray-700">

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { formatEventDateShort } from "@/lib/date-utils";
 import {
   Plus,
   Pencil,
@@ -170,7 +171,7 @@ function ArticleCard({
         {article.eventDate && (
           <p className="text-sm text-gray-500 flex items-center gap-1 mt-1">
             <Calendar className="w-3 h-3" />
-            {new Date(article.eventDate).toLocaleDateString("zh-CN")}
+            {formatEventDateShort(article.eventDate)}
           </p>
         )}
       </div>
@@ -208,9 +209,7 @@ function ArticleEditor({
   const [coverImageUrl, setCoverImageUrl] = useState(article?.coverImageUrl ?? "");
   const [type, setType] = useState(article?.type ?? "past");
   const [eventDate, setEventDate] = useState(
-    article?.eventDate
-      ? new Date(article.eventDate).toISOString().slice(0, 10)
-      : ""
+    article?.eventDate ? article.eventDate.slice(0, 10) : ""
   );
   const [sortOrder, setSortOrder] = useState(article?.sortOrder ?? 0);
   const [saving, setSaving] = useState(false);
