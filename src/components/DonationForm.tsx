@@ -281,7 +281,6 @@ export default function DonationForm({ onZelleClick, onSuccess }: DonationFormPr
                 className="w-4 h-4 text-zju-blue"
               />
               <span className="font-medium">Zeffy 在线捐赠</span>
-              <span className="text-sm text-gray-500">点击跳转 Zeffy 页面完成捐赠</span>
             </label>
             <label className="flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer hover:bg-gray-50 has-[input:checked]:border-zju-blue has-[input:checked]:bg-zju-blue/5">
               <input
@@ -305,9 +304,6 @@ export default function DonationForm({ onZelleClick, onSuccess }: DonationFormPr
           )}
           {paymentMethod === "zeffy" && (
             <div className="space-y-4 pt-2">
-              <p className="text-sm text-gray-600 text-center">
-                点击下方按钮跳转至 Zeffy 页面完成捐赠
-              </p>
               <div className="flex flex-col items-center gap-4">
                 {zeffyQrSrc && (
                   <div className="flex flex-col items-center gap-2">
@@ -327,13 +323,12 @@ export default function DonationForm({ onZelleClick, onSuccess }: DonationFormPr
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    const w = window.open(zeffyUrl, "_blank", "noopener,noreferrer");
-                    if (!w) window.location.href = zeffyUrl;
+                    window.open(zeffyUrl, "_blank", "noopener,noreferrer");
                   }}
                   className="w-full py-3 px-4 bg-zju-blue text-white rounded-xl font-semibold hover:bg-zju-blue-600 transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <ExternalLink className="w-5 h-5" />
-                  前往 Zeffy 在线捐赠
+                  前往 Zeffy 捐赠
                 </button>
               </div>
             </div>
