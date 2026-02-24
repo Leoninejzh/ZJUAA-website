@@ -71,7 +71,11 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
 
   const refresh = useCallback(async () => {
     try {
-      const res = await fetch("/api/settings", { cache: "no-store", credentials: "include" });
+      const res = await fetch(`/api/settings?t=${Date.now()}`, {
+        cache: "no-store",
+        credentials: "include",
+        headers: { Pragma: "no-cache", "Cache-Control": "no-cache" },
+      });
       if (!res.ok) return;
       const data = await res.json();
       if (data && typeof data === "object") {

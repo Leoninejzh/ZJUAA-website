@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { DEFAULT_SITE_SETTINGS } from "@/lib/default-settings";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const dbUrl = process.env.DATABASE_URL;
   const skipDb =

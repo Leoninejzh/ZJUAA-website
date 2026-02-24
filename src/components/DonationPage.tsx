@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Heart, Shield, Users, Building2 } from "lucide-react";
 import DonationForm from "./DonationForm";
@@ -10,8 +10,12 @@ import SiteNav from "./SiteNav";
 import { useSettings } from "./SettingsProvider";
 
 export default function DonationPage() {
-  const { settings } = useSettings();
+  const { settings, refresh } = useSettings();
   const [showZelleModal, setShowZelleModal] = useState(false);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   return (

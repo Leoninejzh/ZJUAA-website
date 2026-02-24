@@ -70,7 +70,7 @@ export default function SettingsEditor() {
         const msg = (data as { error?: string }).error || `保存失败 (${res.status})`;
         throw new Error(msg);
       }
-      setMessage({ type: "success", text: "保存成功！刷新捐赠页面即可看到更新。" });
+      setMessage({ type: "success", text: "保存成功！返回捐赠页面将自动加载最新内容。" });
       router.refresh();
     } catch (err) {
       setMessage({
