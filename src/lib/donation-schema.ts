@@ -6,10 +6,11 @@ export const donationSchema = z.object({
   email: z.string().email("请输入有效的邮箱地址"),
   graduationYear: z
     .string()
-    .min(4, "请输入入学年份")
-    .max(4, "入学年份应为4位数字")
-    .regex(/^\d{4}$/, "入学年份应为4位数字"),
-  major: z.string().min(2, "请输入专业名称"),
+    .optional()
+    .refine((val) => !val || (val.length === 4 && /^\d{4}$/.test(val)), {
+      message: "入学年份应为4位数字",
+    }),
+  major: z.string().optional(),
   message: z.string().optional(),
   paymentMethod: z.enum(["zelle", "card", "zeffy"], {
     required_error: "请选择支付方式",

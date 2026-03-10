@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     const message = body.message ? String(body.message).trim() : null;
     const paymentMethod = body.paymentMethod === "card" ? "card" : "zelle";
 
-    if (!amount || amount < 1 || !name || !email || !graduationYear || !major) {
+    if (!amount || amount < 1 || !name || !email) {
       return NextResponse.json(
         { success: false, message: "请填写完整信息" },
         { status: 400 }

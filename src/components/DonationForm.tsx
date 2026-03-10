@@ -8,8 +8,6 @@ import { ChevronRight, ChevronLeft, DollarSign, User, CreditCard, ExternalLink }
 import { donationSchema, type DonationFormData } from "@/lib/donation-schema";
 import { PAYMENT_CONFIG } from "@/lib/payment-config";
 
-const QUICK_AMOUNTS = [50, 100, 500];
-
 interface DonationFormProps {
   onZelleClick: () => void;
   onSuccess: () => void;
@@ -19,10 +17,6 @@ export default function DonationForm({ onZelleClick, onSuccess }: DonationFormPr
   const zeffyUrl = PAYMENT_CONFIG.zeffy.url;
   const zeffyQrSrc = PAYMENT_CONFIG.zeffy.qrImage;
   const [step, setStep] = useState(1);
-  const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
-  const [isCustomAmount, setIsCustomAmount] = useState(false);
-  const [customAmountInput, setCustomAmountInput] = useState("");
-  const [stepError, setStepError] = useState("");
 
   const {
     register,
@@ -46,31 +40,12 @@ export default function DonationForm({ onZelleClick, onSuccess }: DonationFormPr
 
   const paymentMethod = watch("paymentMethod");
 
-  const handleAmountSelect = (amount: number) => {
-    setSelectedAmount(amount);
-    setIsCustomAmount(false);
-    setValue("amount", amount);
-  };
-
-  const handleCustomAmount = () => {
-    setIsCustomAmount(true);
-    setSelectedAmount(null);
-  };
-
   const nextStep = async () => {
-    setStepError("");
     if (step === 1) {
-      const amount = isCustomAmount
-        ? parseFloat(customAmountInput)
-        : selectedAmount;
-      if (!amount || amount < 1) {
-        setStepError("请先选择或输入捐赠金额");
-        return;
-      }
-      setValue("amount", amount);
+      setValue("amount", 1);
     }
     if (step === 2) {
-      const valid = await trigger(["name", "email", "graduationYear", "major"]);
+      const valid = await trigger(["name", "email"]);
       if (!valid) return;
     }
     setStep((s) => Math.min(s + 1, 3));
@@ -121,60 +96,14 @@ export default function DonationForm({ onZelleClick, onSuccess }: DonationFormPr
         ))}
       </div>
 
-      {/* Step 1: Amount */}
+      {/* Step 1: Welcome - click 现在捐赠 to go to step 2 */}
       {step === 1 && (
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-zju-blue flex items-center gap-2">
             <DollarSign className="w-5 h-5" />
-            选择捐赠金额
+            欢迎捐赠
           </h3>
-          <div className="grid grid-cols-3 gap-3">
-            {QUICK_AMOUNTS.map((amt) => (
-              <div
-                key={amt}
-                role="button"
-                tabIndex={0}
-                onClick={() => handleAmountSelect(amt)}
-                onKeyDown={(e) => e.key === "Enter" && handleAmountSelect(amt)}
-                className={`py-3 px-4 rounded-xl font-semibold transition-all text-center cursor-pointer select-none ${
-                  selectedAmount === amt
-                    ? "bg-zju-blue text-white ring-2 ring-zju-blue ring-offset-2"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              >
-                ${amt}
-              </div>
-            ))}
-          </div>
-          <div
-            role="button"
-            tabIndex={0}
-            onClick={handleCustomAmount}
-            onKeyDown={(e) => e.key === "Enter" && handleCustomAmount()}
-            className={`w-full py-3 px-4 rounded-xl font-semibold transition-all text-center cursor-pointer select-none ${
-              isCustomAmount
-                ? "bg-zju-blue text-white ring-2 ring-zju-blue ring-offset-2"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-          >
-            自定义金额
-          </div>
-          {stepError && (
-            <p className="text-sm text-red-600">{stepError}</p>
-          )}
-          {isCustomAmount && (
-            <div className="mt-2">
-              <input
-                type="number"
-                min="1"
-                step="1"
-                placeholder="输入金额 (USD)"
-                value={customAmountInput}
-                onChange={(e) => setCustomAmountInput(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-zju-blue focus:border-transparent"
-              />
-            </div>
-          )}
+          <p className="text-gray-600">感谢您对浙大校友会的支持！</p>
         </div>
       )}
 
@@ -214,7 +143,7 @@ export default function DonationForm({ onZelleClick, onSuccess }: DonationFormPr
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              入学年份 *
+              入学年份（选填）
             </label>
             <input
               {...register("graduationYear")}
@@ -230,7 +159,7 @@ export default function DonationForm({ onZelleClick, onSuccess }: DonationFormPr
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              专业 *
+              专业（选填）
             </label>
             <input
               {...register("major")}
@@ -368,7 +297,7 @@ export default function DonationForm({ onZelleClick, onSuccess }: DonationFormPr
             }}
             className="flex-1 py-3 px-4 bg-zju-blue text-white rounded-xl font-semibold hover:bg-zju-blue-600 flex items-center justify-center gap-2"
           >
-            下一步
+            {step === 1 ? "现在捐赠" : "下一步"}
             <ChevronRight className="w-4 h-4" />
           </button>
         ) : paymentMethod === "zeffy" ? (
